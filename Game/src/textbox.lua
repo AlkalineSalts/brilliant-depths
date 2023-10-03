@@ -16,7 +16,12 @@ function Textbox.setFont(self, font) --if nil, self._font will be the default fo
 end
 
 function Textbox.setText(self, text) --_text is the raw text, not modified for display
+	if text == nil
+	then
+		text = ""
+	end
 	self._text = text 
+	self:textChanged()
 end
 
 function Textbox.getText(self)
@@ -24,6 +29,9 @@ function Textbox.getText(self)
 end
 
 function Textbox.click(self)
+end
+
+function Textbox.textChanged(self)
 end
 
 function Textbox.draw(self)

@@ -75,8 +75,8 @@ function WordDownshiftTextbox.setText(self, text)
 	do
 		local line = table.concat(v, " ")
 		self._textbox_array[#self._textbox_array + 1] = LinearTextbox.new(line, self:getFont(), self:getColor())
-		self.__width = math.max(self._textbox_array[#self._textbox_array]:getWidth(), self:getWidth())
-		self.__height = self:getHeight() + self._textbox_array[#self._textbox_array]:getHeight()
+		self:__setWidth(math.max(self._textbox_array[#self._textbox_array]:getWidth(), self:getWidth()))
+		self:__setHeight(self:getHeight() + self._textbox_array[#self._textbox_array]:getHeight())
 	end
 end
 	

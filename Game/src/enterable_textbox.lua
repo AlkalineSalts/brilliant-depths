@@ -87,7 +87,7 @@ function EnterableTextbox.draw(self)
 	love.graphics.setColor(r,g,b,a)
 	
 end
-function EnterableTextbox.new(font, color, max_chars)
+function EnterableTextbox.new(max_chars, font, color)
 	local self = LinearTextbox.new("", font, color)
 	setmetatable(self, {__index = EnterableTextbox})
 	self.___width = self:getFont():getWidth(" ") * max_chars

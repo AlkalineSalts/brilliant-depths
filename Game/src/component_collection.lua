@@ -44,27 +44,27 @@ function ComponentCollection.click(self)
 	end
 end
 function ComponentCollection.getWidth(self)
-	local width = 0
-	sortedByX = table.sort(table.shallowCopy(self._component_list), function(c1, c2) return c1:getX() < c2:getX() end)
-	for i = 2, #sortedByX
+	local minX = self._component_list[1]:getX()
+	local maxX = self._component_list[1]:getX() + self._component_list[1]:getWidth()
+	for _, component in ipairs(self._component_list)
 	do
-		width = width + sortedByX[i] - sortedByX[i - 1] + sortedByX[i]:getWidth()
+		minX  = math.min(minX, component:getX())
+		maxX = math.max(maxX, component:getX() + component:getWidth())
 	end
-	width = width + sortedByX[1]
-	return width
+	return maxX - minX
 end
 function ComponentCollection.getHeight(self)
-	local height = 0
-	sortedByY = table.sort(table.shallowCopy(self._component_list), function(c1, c2) return c1:getY() < c2:getY() end)
-	for i = 2, #sortedByY
+	local minY = self._component_list[1]:getY()
+	local maxY = self._component_list[1]:getY() + self._component_list[1]:getHeight()
+	for _, component in ipairs(self._component_list)
 	do
-		height = height + sortedByY[i] - sortedByY[i - 1] + sortedByY[i]:getHeight()
+		minY  = math.min(minY, component:getY())
+		maxY = math.max(maxY, component:getY() + component:getHeight())
 	end
-	height = height + sortedByY[1]
-	return height
+	return maxY - minY
 end
 function ComponentCollection.setX(self, x)
-	local diffX = x - self:getX()
+	local diffX = x - self:getX(self)
 	Component.setX(self, x)
 	self:_forEachComponent(function(component) component:setX(component:getX() + diffX) end)
 end
@@ -72,6 +72,9 @@ function ComponentCollection.setY(self, y)
 	local diffY = y - self:getY()
 	Component.setY(self, y)
 	self:_forEachComponent(function(component) component:setY(component:getY() + diffY) end)
+end
+function ComponentCollection.add(self, c)
+	self._component_list[#self._component_list + 1] = c
 end
 
 function ComponentCollection.new(...) --takes any # of components, will set the first component x y to this componenets x y. the x and y of all other components are moved relative to that shift
@@ -81,7 +84,7 @@ function ComponentCollection.new(...) --takes any # of components, will set the 
 	if #{...} < 1 then error("Must give at least one component") end
 	self._component_list = {...}
 	--Makes it so that this x y is equal to first component x y 
-	local currentX = Component.getX(self)
+	local currentX = Component.getX(self) --Will be zero for getX, getY, but incase changes
 	local currentY = Component.getY(self)
 	local first = table.unpack({...})
 	Component.setX(self, first:getX())

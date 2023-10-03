@@ -49,6 +49,7 @@ end
 function Component.getY(self)
 	return self._y
 end
+
 function Component.new(x, y, width, height)
 	local newComponent = {}
 	newComponent._x = x or 0

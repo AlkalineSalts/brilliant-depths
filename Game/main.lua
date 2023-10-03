@@ -4,28 +4,30 @@ require("src.screen")
 require("src.textbox")
 require("src.TextGameFramework.save_functions")
 require("src.logger")
+require("src.save_util")
 Logger.startLogger("log.txt")
+--Security:
+-- os = nil io = nil
 GameManager = {} --global used to determine what happens on screen, changing its metatables changes what the defined love functions will do
 --game manager defines a field screen which holds the current screen and delegates all activities to it
 local TitleScreen = require("src.screens.titlescreen")
-GameManager.eventManager = EventManager.new("GameRoot")
+local eventDirectory = "GameRoot"
+GameManager.eventManager = EventManager.new(eventDirectory)
 
 do
-	local savePath = love.filesystem.getSaveDirectory()..package.config:sub(1,1).."save_file.lua"
-	if love.filesystem.exists(savePath)
+	local savePath = "save_file.lua"
+	if love.filesystem.getInfo(savePath)
 	then
-		GameManager.saveData = deserialize(savePath)
+		GameManager.saveData = SaveUtil.loadSaveData(savePath)
 	else
-		GameManager.saveData = {inventory = {}, party = {}}
-	end
-	--After here, add functions/metatables to the various sub tables
-	setmetatable(GameManager.saveData.inventory, {__index = function(table, key) val = rawget(table, key) if val then return val else return 0 end end}) --When inventory doesn't have an item, returns 0
-	--GameManager.saveData.party
-	
+		GameManager.saveData = SaveUtil.getDefaultSaveData()
+	end	
+	SaveUtil.saveData({t=1}, "save.lua")
 end
+
 function GameManager.changeScreen(newScreen) --static method
 	local currentScreen = GameManager.screen
-	if currentScreen and currentScreen.release
+	if currentScreen
 	then
 		currentScreen:release()
 	end
@@ -33,7 +35,7 @@ function GameManager.changeScreen(newScreen) --static method
 	--setmetatable(GameManager, {__index = newScreen}) --can change game behavior by changing GameManager metatable
 	GameManager.screen = newScreen
 	GameManager.inputProcessor = newScreen
-	
+	newScreen:load()
 	--if newScreen.load
 	--then
 	--	newScreen:load()

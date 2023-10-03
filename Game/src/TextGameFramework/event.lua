@@ -47,8 +47,7 @@ function Event.add_option(self, option)
 end
 function Event.new(name) --do not modify/override
 	local o = {}
-	local meta = {__index = Event}
-	setmetatable(o, meta)
+	setmetatable(o, {__index = Event})
 	o._name = name
 	o._options = {}
 	return o

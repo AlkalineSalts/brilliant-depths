@@ -13,6 +13,15 @@ function Enum.values(enum)
 	
 end
 
+function Enum.isInEnum(enum, element)
+	local enumSize = 0
+	for _, _ in pairs(getmetatable(enum).__index)
+	do
+		enumSize = enumSize + 1
+	end
+	return element > 0 and element <= enumSize
+end
+
 function Enum.new(values) --values == list of strings
 	local self = {}
 	local backingTable = {}
@@ -20,7 +29,7 @@ function Enum.new(values) --values == list of strings
 	do
 		backingTable[v] = i
 	end
-	setmetatable(self, {__index = backingTable, __newindex = emptyFunc)}
+	setmetatable(self, {__index = backingTable, __newindex = emptyFunc})
 	return self
 end
 

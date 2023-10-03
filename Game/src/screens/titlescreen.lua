@@ -9,6 +9,7 @@ require("src.transition.simple_transition")
 require("src.selectable_bar")
 require("src.background_drawable")
 require("src.screens.difficulty_screen")
+require("src.save_util")
 TitleScreen = {}
 setmetatable(TitleScreen, {__index = Screen})
 
@@ -33,13 +34,14 @@ end
 function TitleScreen.new()
 	local self = Screen.new()
 	setmetatable(self, {__index = TitleScreen})
-	local width, height = love.graphics.getDimensions()
+	local width = Screen.width
+	local height = Screen.height
 	self.titleText = LinearTextbox.new("Made In New Abyss", love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
 	self.titleText:setX(width/2 - self.titleText:getWidth()/2)
 	self:add(self.titleText)
 	local nonTitleFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 30)
 	self.newGame = HighlightTextbox.new(LinearTextbox.new("New Game", nonTitleFont))
-	if GameManager.saveData
+	if GameManager.saveData == SaveUtil.getDefaultSaveData()
 	then
 		self.continue = HighlightTextbox.new(LinearTextbox.new("Continue", nonTitleFont))
 	else
@@ -60,8 +62,9 @@ function TitleScreen.new()
 	--self.enterable_textbox:setX(100)
 	--self:add(self.enterable_textbox)
 	
-	--self.gg = SelectableBar.new({"Hi", "Bye"},EnterableTextbox.new(nonTitleFont, nil, 30), love.graphics.newImage("Images/arrow_square_right.png"))
+	--self.gg = SelectableBar.new({"Hi", "Bye"},EnterableTextbox.new(20, nonTitleFont, nil), love.graphics.newImage("Images/arrow_square_right.png"))
 	--self.gg:setY(500)
+	--print(self.gg:getHeight())
 	--self:add(self.gg)
 	return self
 end

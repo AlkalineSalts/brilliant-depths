@@ -1,8 +1,22 @@
 --Supertype of Any kind of screen
 Screen = {}
-function Screen.release(self)
-end
+Screen.width = 800
+Screen.height = 600
 
+function Screen.centerComponentOnX(component)
+	component:setX((Screen.width/2) - component:getWidth() / 2)
+end
+function Screen.centerComponentOnY(component)
+	component:setY((Screen.height/2) - component:getHeight() / 2)
+end
+function Screen.centerComponentUnderComponent(component, centerUnderThis)
+	component:setX(centerUnderThis:getX() + centerUnderThis:getWidth() / 2)
+	component:setY(centerUnderThis:getY() + centerUnderThis:getHeight())
+end
+function Screen.release(self) --Called when screen is moved away from
+end
+function Screen.load(self) --Called when Screen is switched to
+end
 function Screen.update(self, dt)
 	if not self._is_focused --only updates if in focus
 	then
