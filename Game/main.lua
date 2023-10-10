@@ -6,12 +6,14 @@ require("src.TextGameFramework.save_functions")
 require("src.logger")
 require("src.save_util")
 Logger.startLogger("log.txt")
+
 --Security:
 -- os = nil io = nil
 GameManager = {} --global used to determine what happens on screen, changing its metatables changes what the defined love functions will do
 --game manager defines a field screen which holds the current screen and delegates all activities to it
 local TitleScreen = require("src.screens.titlescreen")
 local eventDirectory = "GameRoot"
+SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(eventDirectory)
 GameManager.eventManager = EventManager.new(eventDirectory)
 
 do
@@ -22,7 +24,6 @@ do
 	else
 		GameManager.saveData = SaveUtil.getDefaultSaveData()
 	end	
-	SaveUtil.saveData({t=1}, "save.lua")
 end
 
 function GameManager.changeScreen(newScreen) --static method

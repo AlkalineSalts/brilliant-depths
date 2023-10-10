@@ -27,5 +27,48 @@ function NextPrevious.getNextPreviousForArray(list, st_index)
 	}
 	return newNextPrevious
 end
+
+function NextPrevious.getNextPreviousForRange(starting_val, step, minValue, maxValue)
+	if type(starting_val) ~= "number"
+	then
+		error(string.format("Starting val must be a number (was %s)", starting_val))
+	end
+	if not step
+	then
+		error(string.format("Step must be a number (was %s)", step))
+	end
+	if not minValue then minValue = math.mininteger end
+	if type(minValue) ~= "number"
+	then
+		error(string.format("minValue must be a number or nil (was %s)", minValue))
+	end
+	if not maxValue then maxValue = math.maxinteger end
+	if type(maxValue) ~= "number"
+	then
+		error(string.format("maxValue must be a number or nil (was %s)", maxValue))
+	end
+	local newNextPrevious = {
+		current_value = starting_val,
+		step_value = step,
+		min = minValue,
+		max = maxValue,
+		current = function (self) return self.current_value end,
+		previous = function (self)
+			 local newVal = self.current_value - step
+			 if newVal >= self.min 
+			 then 
+				 self.current_value = newVal
+			 end
+		 end,
+		 next = function (self)
+			 local newVal = self.current_value + step
+			 if newVal <= self.max
+			 then
+				 self.current_value = newVal
+			 end
+		 end
+	}
+	return newNextPrevious
+end
 	
 	

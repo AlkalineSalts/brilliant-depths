@@ -1,4 +1,5 @@
 require("src.screen")
+require("src.builder")
 require("src.screens.notify_screen")
 require("src.screens.shop_screen")
 require("src.verticle_collection")
@@ -22,7 +23,7 @@ function DifficultyScreen.new()
 	self.initial_money_amount[0] = 500
 	local c_classes = Enum.values(PartyMember.Classes)
 	local enterfont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 30)
-	local playerSetupList = {textbox = EnterableTextbox.new(20, enterfont, nil), bar = SelectableBar.new(NextPrevious.getNextPreviousForArray(c_classes),EnterableTextbox.new(20, enterfont, nil), love.graphics.newImage("Images/arrow_square_right.png"))}
+	local playerSetupList = {textbox = EnterableTextbox.new(20, enterfont, nil), bar = SelectableBar.new(NextPrevious.getNextPreviousForArray(c_classes), Builder.new(EnterableTextbox, 20, enterfont, nil), love.graphics.newImage("Images/arrow_square_right.png"))}
 	self.num_players = LinearTextbox.new("Current Players: 0", enterfont)
 	self.initial_money_text = LinearTextbox.new(string.format("Starting Currency: %d", self.initial_money_amount[0]), enterfont)
 	local function getPlayerAmt()
@@ -43,7 +44,7 @@ function DifficultyScreen.new()
 	playerSetupList.textbox.textChanged = getPlayerAmt
 	for i = 2, 5
 	do
-		local playerSetupList = {textbox = EnterableTextbox.new(20, enterfont, nil), bar = SelectableBar.new(NextPrevious.getNextPreviousForArray(c_classes),EnterableTextbox.new(20, enterfont, nil), love.graphics.newImage("Images/arrow_square_right.png"))}
+		local playerSetupList = {textbox = EnterableTextbox.new(20, enterfont, nil), bar = SelectableBar.new(NextPrevious.getNextPreviousForArray(c_classes), Builder.new(EnterableTextbox, 20, enterfont, nil), love.graphics.newImage("Images/arrow_square_right.png"))}
 		self.struct_list[i] = playerSetupList
 		playerSetupList.textbox.textChanged = getPlayerAmt
 		self.player_setup:add(playerSetupList.textbox)

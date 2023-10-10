@@ -9,7 +9,8 @@ setmetatable(SelectableBar, {__index = ComponentCollection})
 function SelectableBar.getText(self)
 	return self._enterable_textbox:getText()
 end
-function SelectableBar.new(next_previous, enterable_textbox, arrow_image) --text_area_size in chars
+function SelectableBar.new(next_previous, enterable_textbox_builder, arrow_image) --text_area_size in chars
+	local enterable_textbox = enterable_textbox_builder:build()
 	arrow_image = arrow_image or love.graphics.newImage("Images/arrow_square_right.png")
 	local right_arrow = DrawableImage.new(arrow_image, enterable_textbox:getHeight(), enterable_textbox:getHeight())
 	local left_arrow = DrawableImage.new(arrow_image, enterable_textbox:getHeight(), enterable_textbox:getHeight())

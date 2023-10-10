@@ -23,3 +23,27 @@ end
 function SaveUtil.saveData(table, savePath)
 	serialize(table, savePath)
 end
+
+function SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(dirname) --internal directory is distinguished by having _ in front of it
+	local internal_filepath= "_"..dirname
+	local function copyHelper(path)
+		local data = love.filesystem.getInfo(path)
+		if data.type == "directory"
+		then
+			local files = love.filesystem.getDirectoryItems(path)
+			love.filesystem.createDirectory(string.sub(path, 2))
+			for _, file in ipairs(files)
+			do
+				copyHelper(path.."/"..file)
+			end
+		else --if file
+			local internalData = love.filesystem.read(path)
+			love.filesystem.write(string.sub(path, 2), internalData)
+		end
+	end
+	if not love.filesystem.getInfo(dirname, {})
+	then
+		copyHelper(internal_filepath)
+	end
+end
+			

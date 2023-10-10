@@ -27,6 +27,7 @@ function EnterableTextbox.stringSizeLimit(self)
 	return self._max_chars
 end
 function EnterableTextbox.setText(self, text)
+	text = tostring(text)
 	if self:textCanFit(text)
 	then
 		LinearTextbox.setText(self, text)

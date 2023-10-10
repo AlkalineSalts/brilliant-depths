@@ -53,7 +53,18 @@ function EventManager.get_event(self, name, game_data)
 		return event
 	end
 end
-
+function EventManager.get_event_group(self, name)
+	if type(name) ~= "string"
+	then
+		error(string.format("name must be a string (was %s)", name))
+	end
+	local ret_table = self._event_group_to_events[name]
+	if not ret_table
+	then
+		error(string.format("%s is not an event group", name))
+	end
+	return ret_table
+end
 function EventManager.new(root_directory)
 	local o = {}
 	local meta = {__index = EventManager}
