@@ -52,10 +52,10 @@ end
 
 function Option.new(text, should_be_visible) --obviously should not be changed
 	local o = {}
-	local meta = {__index = Option}
+	local meta = {__index = Option, __eq = Option.__eq}
 	setmetatable(o, meta)
 	o._text = text
-	o._should_be_visible = should_be_visible
+	o._should_be_visible = should_be_visible or true
 	return o
 end
 

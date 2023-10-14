@@ -41,7 +41,7 @@ function DifficultyScreen.new()
 	end
 	self.player_setup = VerticleCollection.new(playerSetupList.textbox, playerSetupList.bar)
 	self.struct_list = {playerSetupList}
-	playerSetupList.textbox.textChanged = getPlayerAmt
+	playerSetupList.bar.textChanged = getPlayerAmt
 	for i = 2, 5
 	do
 		local playerSetupList = {textbox = EnterableTextbox.new(20, enterfont, nil), bar = SelectableBar.new(NextPrevious.getNextPreviousForArray(c_classes), Builder.new(EnterableTextbox, 20, enterfont, nil), love.graphics.newImage("Images/arrow_square_right.png"))}

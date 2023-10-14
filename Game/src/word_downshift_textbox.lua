@@ -102,10 +102,8 @@ function WordDownshiftTextbox.setY(self, y)
 end
 function WordDownshiftTextbox.setColor(self, color)
 	Textbox.setColor(self, color)
-	local iter = 1
 	for _, textbox in ipairs(self._textbox_array)
 	do
-		iter = iter + 1
 		textbox:setColor(color)
 	end
 end
@@ -118,6 +116,7 @@ function WordDownshiftTextbox.setFont(self, font)
 end
 	
 function WordDownshiftTextbox.draw(self)
+	local color = self:getColor()
 	local i = 1
 	for j, textbox in ipairs(self._textbox_array)
 	do
@@ -140,7 +139,7 @@ function WordDownshiftTextbox.new(str, font, color, width_limit) --font is eithe
 	end
 	newTextbox._width_limit = width_limit
 	newTextbox:setText(str)
-	newTextbox:setColor(color)
+	newTextbox:setColor(newTextbox:getColor())
 	newTextbox:setFont(font)
 	newTextbox:setY(0)
 	newTextbox:setX(0)

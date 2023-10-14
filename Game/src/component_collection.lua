@@ -23,9 +23,9 @@ function ComponentCollection.checkMouseOver(self, mouseX, mouseY)
 end
 
 function ComponentCollection.mouseOver(self, mouseOver) 
+	self:_forEachComponent(function(component) component:mouseOver(false) end)
 	if mouseOver 
 	then
-		self:_forEachComponent(function(component) component:mouseOver(false) end)
 		self._mouse_over_component:mouseOver(true)
 	end
 end

@@ -7,6 +7,7 @@ function Component.checkMouseOver(self, mouseX, mouseY)
 end
 
 function Component.mouseOver(self, mouseOver) --Used to set if the mouse is over this component
+	--[[
 	if self._is_mouse_over and not mouseOver
 	then
 		self._is_mouse_over = mouseOver
@@ -14,7 +15,8 @@ function Component.mouseOver(self, mouseOver) --Used to set if the mouse is over
 	then
 		self._is_mouse_over = mouseOver
 	end
-	
+	--]]
+	self._is_mouse_over = mouseOver
 end
 
 function Component.__isMouseOver(self)

@@ -13,6 +13,12 @@ function Enum.values(enum)
 	
 end
 
+function Enum.getEnumName(enum, enum_value)
+	local backingTable = getmetatable(enum).__index
+	local valuesTable = {}
+	return valuesTable[enum_value]
+end
+
 function Enum.isInEnum(enum, element)
 	local enumSize = 0
 	for _, _ in pairs(getmetatable(enum).__index)

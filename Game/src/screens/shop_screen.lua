@@ -1,7 +1,9 @@
 require("src.util")
 require("src.screen")
+require("src.screens.main_screen")
 require("src.builder")
 require("src.component_collection")
+require("src.drawable_image")
 require("src.horizontal_collection")
 require("src.rectangular_component")
 require("src.verticle_collection")
@@ -10,17 +12,59 @@ require("src.word_downshift_textbox")
 require("src.next_previous")
 require("src.linear_textbox")
 require("src.item_properties")
+require("src.save_util")
 ShopScreen = {}
 setmetatable(ShopScreen, {__index = Screen})
 
-function ShopScreen._calculateTotal(self)
-	self.total = 0
-	for _, textbox in ipairs(self.verticleTextbox)
-	do
-		self.total = self.total + tonumber(textbox:getText())
-	end
-	self.totalPrice:setText(string.format("%9d", self.total))
+local InnerItemRow = {}
+InnerItemRow.font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 24)
+function InnerItemRow.getItemName(self)
+	return self.itemNameTextbox:getText()
 end
+
+function InnerItemRow.getPrice(self)
+	return tonumber(self.price_total:getText())
+end
+
+function InnerItemRow.getAmount(self)
+	return tonumber(self.selectable_bar:getText())
+end
+
+function InnerItemRow.onPriceChanged(self)
+	
+end
+
+function InnerItemRow.new(item_name, iterator, verticleCollection)
+	local self = {}
+	setmetatable(self, {__index = InnerItemRow})
+	self.itemNameTextbox = LinearTextbox.new(item_name, self.font)
+	local builder = Builder.new(EnterableTextbox, 4, self.font)
+	self.selectable_bar = SelectableBar.new(iterator, builder)
+	self.price_total = LinearTextbox.new("         0", self.font)
+	self.selectable_bar.textChanged = function (selfie)
+		local amt = tonumber(selfie:getText())
+		local price = ItemProperties.getItemProperties(self:getItemName()).price
+		self.price_total:setText(string.format("%10d", amt * price))
+		self:onPriceChanged()
+	end
+	
+	self.selectable_bar:setX(verticleCollection:getWidth() / 2 - self.selectable_bar:getWidth() / 2)
+	self.price_total:setX(verticleCollection:getWidth() - self.price_total:getWidth())
+	
+	local hc = ComponentCollection.new(self.itemNameTextbox, self.selectable_bar, self.price_total)
+	verticleCollection:add(hc)
+	return self
+end
+
+function ShopScreen._calculateTotal(self)
+	local total = 0
+	for _, row in ipairs(self.items)
+	do
+		total = total + row:getPrice()
+	end
+	return total
+end
+
 
 function ShopScreen.new()
 	local self = Screen.new()
@@ -28,14 +72,11 @@ function ShopScreen.new()
 	self.total = 0
 	local textFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)
 	self.downShiftTextbox = WordDownshiftTextbox.new("You arrive at the shop. Here you can supply yourself for the voyage. In terms of food, I would recommend that you take approximately 10 pounds of food per day, 2 pieces of clothing for each person, and as many spare parts as you need.", textFont, nil, 700)
-	local startingCurrencyTextbox = LinearTextbox.new(string.format("Starting Currency: %d", GameManager.saveData.currency), textFont)
-	local rectComp = RectangularComponent.new()
+	self.startingCurrencyTextbox = LinearTextbox.new(string.format("Starting Currency: %d", GameManager.saveData.currency), textFont)
 	
-	
-
-	
-	
-	local vc = VerticleCollection.new(self.downShiftTextbox, startingCurrencyTextbox)
+	local vc = VerticleCollection.new(self.downShiftTextbox)
+	self.startingCurrencyTextbox:setX(vc:getX() + vc:getWidth() - self.startingCurrencyTextbox:getWidth())
+	vc:add(self.startingCurrencyTextbox)
 	local function createLine()
 		local rectComp = RectangularComponent.new()
 		rectComp:setX(0) rectComp:setWidth(vc:getWidth()) rectComp:setHeight(3)
@@ -43,66 +84,57 @@ function ShopScreen.new()
 	end
 	vc:add(createLine())
 	
+	self.items = {
+    InnerItemRow.new("Food", NextPrevious.getNextPreviousForRange(0, 100, 0, 9999), vc),
+	InnerItemRow.new("Clothing", NextPrevious.getNextPreviousForRange(0, 20, 0, 9999), vc),
+	InnerItemRow.new("Shot", NextPrevious.getNextPreviousForRange(0, 10, 0, 9999), vc)
 	
 	
-	local selectionFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 24)
+	}
 	
-	
-	
-	
-	
-	--Could use refactoring, pretty vulnerable
-	local items = {"Food", "Clothing", "Shot"}
-	local next_previous = {NextPrevious.getNextPreviousForRange(0, 100, 0, 9999), NextPrevious.getNextPreviousForRange(0, 1, 0, 100), NextPrevious.getNextPreviousForRange(0, 20, 0, 9999)}
-	local verticleItemName = {}
-	local verticleNum = {}
-	self.verticleTextbox = {}
-	
-	--Is entered last
-	self.totalPrice = LinearTextbox.new("        0", selectionFont)
-	local blankLine = RectangularComponent.new({1,1,1,1})
-	blankLine:setWidth(vc:getWidth() - self.totalPrice:getWidth())
-	local lastLineHorizontal = HorizontalCollection.new(blankLine, self.totalPrice)
-	
-	
-	for i, item in ipairs(items)
+	local totalPrice = LinearTextbox.new("Total:         0", InnerItemRow.font)
+	totalPrice:setX(vc:getX() + vc:getWidth() - totalPrice:getWidth())
+	for _, textbox in pairs(self.items)
 	do
-		self.verticleTextbox[i] = LinearTextbox.new("       0", selectionFont)
-		verticleItemName[i] = LinearTextbox.new(string.format("%-22s", item), selectionFont)
-		local _enterableTextbox_builder = Builder.new(EnterableTextbox, 4, selectionFont)
-		_enterableTextbox_builder:setField("textChanged" , function(selfie) 
-			local val = tonumber(selfie:getText()) * ItemProperties.getItemProperties(item).price
-			self.verticleTextbox[i]:setText(string.format("%10d", val)) 
-			self:_calculateTotal()
+		textbox.onPriceChanged = function () 
+			local total = self:_calculateTotal() 
+			if GameManager.saveData.currency < total
+			then
+				totalPrice:setColor({1, 0, 0, 1})
+			else
+				totalPrice:setColor({1,1,1,1})
+			end
+			totalPrice:setText(string.format("Total: %9d", total))  
 		end
-	)
-		
-		verticleNum[i] = SelectableBar.new(next_previous[i], _enterableTextbox_builder)
 	end
-	local verticleItems = VerticleCollection.new(table.unpack(verticleItemName))
-	local verticleNums = VerticleCollection.new(table.unpack(verticleNum))
-	self.verticleTextboxes = VerticleCollection.new(table.unpack(self.verticleTextbox))
-	local horizontalItems = HorizontalCollection.new(verticleItems, verticleNums)
-	
-	local clearRect = RectangularComponent.new({1,1,1,0})
-	clearRect:setWidth(vc:getWidth() - horizontalItems:getWidth() - self.verticleTextbox[1]:getWidth())
-	horizontalItems:add(clearRect)
-	horizontalItems:add(self.verticleTextboxes)
-	
-	vc:add(horizontalItems)
 	vc:add(createLine())
-	
-	
-	
-	 
-	
-	vc:add(lastLineHorizontal)
-	
+	vc:add(totalPrice)
 	
 	Screen.centerComponentOnX(vc)
 	Screen.centerComponentOnY(vc)
 	self:add(vc)
-	self:add(startingCurrencyTextbox)
+	
+	
+	--Submit button 
+	local submitButton = DrawableImage.new(love.graphics.newImage("Images/arrow_square_right.png"), 80, 80)
+	submitButton:setX(Screen.width - submitButton:getWidth())
+	submitButton:setY(Screen.height - submitButton:getHeight())
+	submitButton.click = function()
+		local boughtTotal = self:_calculateTotal()
+		if boughtTotal > 0 and boughtTotal <= GameManager.saveData.currency
+		then
+			for _, innerRow in ipairs(self.items)
+			do
+				GameManager.saveData.inventory[innerRow:getItemName()] = innerRow:getAmount()
+			end
+			GameManager.saveData.currency = GameManager.saveData.currency - boughtTotal
+			SaveUtil.saveData(GameManager.saveData, SAVE_PATH)
+			GameManager.changeScreen(MainScreen.new())
+		end
+	end
+	self:add(submitButton)
+	
+	
 	return self
 end
 

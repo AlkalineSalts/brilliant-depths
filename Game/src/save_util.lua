@@ -9,6 +9,27 @@ local function initializeSaveData(table)
 	do
 		setmetatable(party_member, {__index = PartyMember})
 	end
+	
+	
+	table.party.getAverageHealth = function (self)
+		local health_avg = 0
+		for _, member in ipairs(self)
+		do
+			health_avg = health_avg + member:getNumericHealthState()
+		end
+		health_avg = health_avg / #self
+		return PartyMember.getHealthStateForNumber(health_avg)
+	end
+	
+	table.party.findPartyMember = function (self, boolFunc)
+		for _, member in ipairs(self)
+		do
+			if boolFunc(member) then return member end
+		end
+		return nil
+	end
+	
+	
 end
 function SaveUtil.loadSaveData(savePath)
 	local data = deserialize(savePath)
@@ -16,7 +37,7 @@ function SaveUtil.loadSaveData(savePath)
 	return data
 end
 function SaveUtil.getDefaultSaveData()
-	local data = {inventory = {}, party = {}, currency = 0, misc = {}}
+	local data = {inventory = {}, party = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
 	initializeSaveData(data)
 	return data
 end

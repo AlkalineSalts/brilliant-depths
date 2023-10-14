@@ -1,6 +1,9 @@
 require("src.enum")
 PartyMember = {}
 PartyMember.Classes = Enum.new({"Adventurer", "Excavator", "Hunter", "Navigator", "Crafter"})
+PartyMember.HealthState = Enum.new({"Great", "Good", "Fair", "Poor"})
+PartyMember.TravelingSpeed = Enum.new({"Balanced", "Strenuous", "Grueling"})
+PartyMember.FoodAmount = Enum.new({"Hearty", "Meager", "Sparse"})
 
 function PartyMember.getName()
 	return self._name
@@ -8,6 +11,32 @@ end
 
 function PartyMember.getClass(self)
 	return self._class
+end
+
+function PartyMember.getHealthStateForNumber(healthVal)
+	if healthVal >= 75
+	then
+		return PartyMember.HealthState.Great
+	elseif healthVal < 75 and healthVal >= 50
+	then
+		return PartyMember.HeathState.Good
+	elseif healthVal < 50 and healthVal >= 25
+	then
+		return PartyMember.HeathState.Fair
+	else
+		return PartyMember.HealthState.Poor
+	end
+end
+
+
+
+function PartyMember.getNumericHealthState(self)
+	return self._healthState
+end
+
+function PartyMember.setNumericHealthState(self, newHealthValue)
+	if type(newHealthValue) ~= "number" then error("newHealthValue must be a number") end
+	self._healthState = math.max(0, math.min(newHealthValue, 100))
 end
 
 function PartyMember.new(name, class)
@@ -19,6 +48,7 @@ function PartyMember.new(name, class)
 	end
 	self._name = name
 	self._class = class
+	self._healthState = 100
 	return self
 end
 

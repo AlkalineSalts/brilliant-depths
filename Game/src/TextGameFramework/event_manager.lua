@@ -27,11 +27,15 @@ function EventManager._add_event_relation(self, event, file)
 end
 
 function EventManager.get_event(self, name, game_data)
+	if not game_data
+	then
+		erro("game_data is a required parameter")
+	end
 	local e_group = self._event_group_to_events[name]
 	if e_group
 	then
 		local valid_events = {}
-		for event in e_group
+		for _, event in ipairs(e_group)
 		do
 			if event:can_be_chosen(game_data)
 			then

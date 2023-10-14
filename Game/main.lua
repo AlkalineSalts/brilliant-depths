@@ -15,12 +15,11 @@ local TitleScreen = require("src.screens.titlescreen")
 local eventDirectory = "GameRoot"
 SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(eventDirectory)
 GameManager.eventManager = EventManager.new(eventDirectory)
-
+SAVE_PATH = "save_file.lua"
 do
-	local savePath = "save_file.lua"
-	if love.filesystem.getInfo(savePath)
+	if love.filesystem.getInfo(SAVE_PATH)
 	then
-		GameManager.saveData = SaveUtil.loadSaveData(savePath)
+		GameManager.saveData = SaveUtil.loadSaveData(SAVE_PATH)
 	else
 		GameManager.saveData = SaveUtil.getDefaultSaveData()
 	end	

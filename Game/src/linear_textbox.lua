@@ -5,7 +5,7 @@ setmetatable(LinearTextbox, {__index = Textbox})
 
 function LinearTextbox.setText(self, text)
 	
-	
+	text = tostring(text)
 	Textbox.setText(self, text)
 	local current_font = self:getFont()
 	local lines = 1

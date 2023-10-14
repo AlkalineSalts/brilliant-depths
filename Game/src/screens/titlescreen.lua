@@ -9,6 +9,7 @@ require("src.transition.simple_transition")
 require("src.selectable_bar")
 require("src.background_drawable")
 require("src.screens.difficulty_screen")
+require("src.screens.main_screen")
 require("src.save_util")
 TitleScreen = {}
 setmetatable(TitleScreen, {__index = Screen})
@@ -41,9 +42,10 @@ function TitleScreen.new()
 	self:add(self.titleText)
 	local nonTitleFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 30)
 	self.newGame = HighlightTextbox.new(LinearTextbox.new("New Game", nonTitleFont))
-	if GameManager.saveData == SaveUtil.getDefaultSaveData()
+	if love.filesystem.getInfo(SAVE_PATH)
 	then
 		self.continue = HighlightTextbox.new(LinearTextbox.new("Continue", nonTitleFont))
+		self.continue.click = function() GameManager.changeScreen(MainScreen.new()) end
 	else
 		self.continue = LinearTextbox.new("Continue", nonTitleFont, {0.5, 0.5, 0.5})
 	end
@@ -54,7 +56,7 @@ function TitleScreen.new()
 	self.continue:setY(self.newGame:getY() + self.newGame:getHeight())
 	self:add(self.newGame)
 	self:add(self.continue)
-	self.newGame.click = function(self) SimpleTransition.fadeTransition(DifficultyScreen.new()) end
+	self.newGame.click = function(self) GameManager.saveData = SaveUtil.getDefaultSaveData() SimpleTransition.fadeTransition(DifficultyScreen.new()) end
 	self.titleLoop = love.audio.newSource("Music/03 File Select.mp3", "stream") --Source object
 	
 	--self.enterable_textbox = EnterableTextbox.new(nonTitleFont, nil, 30)
