@@ -19,10 +19,7 @@ local function padString(val)
 	return string.format("%-40s", str)
 end
 
-function MainScreen._stopTransition(self)
-	self._is_in_transition = false
-	SaveUtil.saveData(GameManager.saveData, SAVE_PATH)
-	--get any valid priority events
+function MainScreen._checkEvents(self)
 	local status, event = pcall(GameManager.eventManager.get_event, GameManager.eventManager, "priority_events", GameManager.saveData)
 	--If expected error ignore, repeat error if not expected error {done a bit dirty}
 	if not status 
@@ -41,6 +38,14 @@ function MainScreen._stopTransition(self)
 	end
 end
 
+function MainScreen._stopTransition(self)
+	self._is_in_transition = false
+	self:_saveGame()
+	self:_checkEvents()
+	--get any valid priority events
+	
+end
+
 function MainScreen.update(self, dt)
 	Screen.update(self, dt)
 	if self._is_in_transition
@@ -50,18 +55,26 @@ function MainScreen.update(self, dt)
 		then
 			direction = direction / math.abs(direction)
 			self._depth = self._depth + direction
-			self:load()
 		else
 			self:_stopTransition()
 		end
 	end
-	
+	self:updateText()
 	
 end
 
-function MainScreen.load(self)
+function MainScreen.updateText(self)
 	self._depth_gauge:setText(padString(string.format("Depth: %d", self._depth)))
 	self._day_meter:setText(padString(string.format("Day: %d", GameManager.saveData.day)))
+end
+
+function MainScreen._saveGame(self)
+	SaveUtil.saveData(GameManager.saveData, SAVE_PATH)
+end
+
+function MainScreen.load(self)
+	self:_saveGame()
+	self:_checkEvents()
 end
 
 function MainScreen.keypressed(self, key, scancode, isrepeat)
@@ -84,6 +97,7 @@ function MainScreen.new()
 	self._is_in_transition = false
 	self._layer_info = DepthInfo.getLayerFromDepth(self._depth)
 	self._background = self._layer_info.layer_image
+	
 	
 	--Set up graphics elements
 	self._font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)

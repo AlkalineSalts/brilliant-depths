@@ -8,7 +8,8 @@ require("src.save_util")
 Logger.startLogger("log.txt")
 
 --Security:
--- os = nil io = nil
+require("src.security")
+
 GameManager = {} --global used to determine what happens on screen, changing its metatables changes what the defined love functions will do
 --game manager defines a field screen which holds the current screen and delegates all activities to it
 local TitleScreen = require("src.screens.titlescreen")

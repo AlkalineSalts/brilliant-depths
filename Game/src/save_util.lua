@@ -2,6 +2,11 @@ require("src.TextGameFramework.save_functions")
 require("src.util")
 require("src.party_member")
 SaveUtil = {}
+
+--Keep randomseed to self
+local setRandomSeed = math.randomseed
+math.randomseed = function() error("I have removed the ability to set the random seed.") end
+
 --tableEquality defined in util
 local function initializeSaveData(table)
 	setmetatable(table.inventory, {__index = function(table, key) val = rawget(table, key) if val then return val else return 0 end end, __eq = tableEquality}) --When inventory doesn't have an item, returns 0
@@ -28,7 +33,7 @@ local function initializeSaveData(table)
 		end
 		return nil
 	end
-	
+	setRandomSeed(table.randomseed)
 	
 end
 function SaveUtil.loadSaveData(savePath)
@@ -37,11 +42,13 @@ function SaveUtil.loadSaveData(savePath)
 	return data
 end
 function SaveUtil.getDefaultSaveData()
-	local data = {inventory = {}, party = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
+	local data = {randomseed = getSystemTime(), inventory = {}, party = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
 	initializeSaveData(data)
 	return data
 end
 function SaveUtil.saveData(table, savePath)
+	table.randomseed = math.random(-1000000, 1000000) -- randomseed is used to maintain consistent behavior between loads
+	setRandomSeed(table.randomseed)
 	serialize(table, savePath)
 end
 
