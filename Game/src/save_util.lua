@@ -42,7 +42,7 @@ function SaveUtil.loadSaveData(savePath)
 	return data
 end
 function SaveUtil.getDefaultSaveData()
-	local data = {randomseed = getSystemTime(), inventory = {}, party = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
+	local data = {randomseed = getSystemTime(), inventory = {}, party = {}, event_data = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
 	initializeSaveData(data)
 	return data
 end
@@ -74,4 +74,18 @@ function SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(dirname) --inter
 		copyHelper(internal_filepath)
 	end
 end
-			
+
+function getEventSaveLocation(event, saveData)
+	local event_data = saveData.event_data
+	local event_name = event:get_name()
+	local this_event_data_table = event_data[event_name]
+	if this_event_data_table
+	then
+		return this_event_data_table
+	else
+		this_event_data_table = {}
+		event_data[event_name] = this_event_data_table
+		return this_event_data_table
+	end
+end
+	

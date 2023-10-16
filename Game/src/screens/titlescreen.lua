@@ -37,7 +37,8 @@ function TitleScreen.new()
 	setmetatable(self, {__index = TitleScreen})
 	local width = Screen.width
 	local height = Screen.height
-	self.titleText = LinearTextbox.new("Made In New Abyss", love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
+	self.titleText = LinearTextbox.new("Brilliant Depths", 
+love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
 	self.titleText:setX(width/2 - self.titleText:getWidth()/2)
 	self:add(self.titleText)
 	local nonTitleFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 30)
