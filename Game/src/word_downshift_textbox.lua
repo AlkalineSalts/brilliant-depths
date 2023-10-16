@@ -1,5 +1,5 @@
-require("src.Textbox")
-require("src.linear_Textbox")
+require("src.textbox")
+require("src.linear_textbox")
 WordDownshiftTextbox = {}
 setmetatable(WordDownshiftTextbox, {__index = Textbox})
 

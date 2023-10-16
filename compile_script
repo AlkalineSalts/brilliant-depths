@@ -1,0 +1,3 @@
+cd Game
+zip -r ../Game.love $(ls)
+cd ..

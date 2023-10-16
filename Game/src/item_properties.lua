@@ -21,7 +21,7 @@ ItemProperties.addItemProperties("Food", 0.1)
 ItemProperties.addItemProperties("Clothing", 5)
 ItemProperties.addItemProperties("Shot", 0.2)
 ItemProperties.addItemProperties("Rope", 10)
-ItemProperties.addItemProperties("Medical Supplies", 20)
+ItemProperties.addItemProperties("Medical_Supplies", 20)
 
 
 return ItemProperties

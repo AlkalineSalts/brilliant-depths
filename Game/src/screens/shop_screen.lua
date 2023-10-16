@@ -89,7 +89,7 @@ function ShopScreen.new()
 	InnerItemRow.new("Clothing", NextPrevious.getNextPreviousForRange(0, 20, 0, 9999), vc),
 	InnerItemRow.new("Shot", NextPrevious.getNextPreviousForRange(0, 10, 0, 9999), vc),
 	InnerItemRow.new("Rope", NextPrevious.getNextPreviousForRange(0, 1, 0, 9999), vc),
-	InnerItemRow.new("Medical Supplies", NextPrevious.getNextPreviousForRange(0, 1, 0, 9999), vc)
+	InnerItemRow.new("Medical_Supplies", NextPrevious.getNextPreviousForRange(0, 1, 0, 9999), vc)
 	
 	
 	}
