@@ -15,9 +15,10 @@ end
 function SelectableBar.new(next_previous, enterable_textbox_builder, arrow_image) --text_area_size in chars
 	local enterable_textbox = enterable_textbox_builder:build()
 	
-	arrow_image = arrow_image or love.graphics.newImage("Images/arrow_square_right.png")
+	local arrow_image = arrow_image or love.graphics.newImage("Images/arrow_square_right.png")
+	local left_arrow_image = left_arrow_image or love.graphics.newImage("Images/arrow_square_left.png")
 	local right_arrow = DrawableImage.new(arrow_image, enterable_textbox:getHeight(), enterable_textbox:getHeight())
-	local left_arrow = DrawableImage.new(arrow_image, enterable_textbox:getHeight(), enterable_textbox:getHeight())
+	local left_arrow = DrawableImage.new(left_arrow_image, enterable_textbox:getHeight(), enterable_textbox:getHeight())
 	left_arrow:setX(0) left_arrow:setY(0)
 	enterable_textbox:setX(left_arrow:getX() + left_arrow:getWidth())
 	enterable_textbox:setEnterable(false)
