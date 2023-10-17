@@ -1,82 +1,80 @@
-local NUMBER_KEY_HEADER = "HIGHLYUNLIKELYUSEDNUMBERKEYHEADER_"
-function serialize (value, file_path)
-local file = love.filesystem.newFile(file_path)
-local errstr
-_, errstr = file:open("w")
-if errstr
-then
-	error(errstr)
+local TABLE_PREFIX = "TABLE_"
+--returns key table to id
+local function getTableId(table)
+	return TABLE_PREFIX..tostring(tonumber(string.format("%p", table)))
 end
-file:write("return ")
-local function serializeHelper(o) --Cannot deal with serializing functions or table cycles
-	local stopComma = true -- Prevents the first comma from being printed
-	local t = type(o)
-	if t == "number" or t == "boolean" or t == "nil" 
-	then
-    	file:write(tostring(o))
-	elseif t == "string"
-	then
-		file:write(string.format("%q", o))
-        elseif t == "table" then
-        	file:write("{")
-            for k,v in pairs(o) do
-				if type(v) ~= "function"
-					then
-						if not stopComma
-						then
-							file:write(",")
-						else
-							stopComma = false
-						end
-            			file:write("  ")
-						if tonumber(k)
-						then
-							file:write(NUMBER_KEY_HEADER..k) --Wraps number with string for use in table constructor, undone in deserialize
-						else
-							file:write(k)
-						end
-						file:write(" = ")
-            			serializeHelper(v)
-                		file:write("\n")
-					end
-			end
-         	file:write("}")
-         
-	end
-end
-serializeHelper(value)
-file:close()
-end
-function deserialize(file_path)
-	func, err = love.filesystem.load(file_path)
-	if err then
-		error(err)
-	end
-	returnTable = func()
-	local function helperRecursiveNumberCorrector(table) --Wrapped numbers as a string, undoing with helped
-		local keys = {}
-		local values = {}
-		for k, v in pairs(table)
-		do
-			keys[#keys + 1] = k
-			values[#values + 1] = v
-		end
-		--Must be same length
-		for i = 1, #keys
-		do
-			if string.find(keys[i], NUMBER_KEY_HEADER) == 1
+local function findTables(t)
+	local tableToTableId = {}
+	
+	local function recursiveTraverseFindTables(table)
+		local function addAndContinue(v)
+		if type(v) == "table"
 			then
-				local newKey = string.sub(keys[i], #NUMBER_KEY_HEADER + 1)
-				table[newKey] = values[i]
-				table[keys[i]] = nil
-			end
-			if type(values[i]) == "table"
-			then
-				helperRecursiveNumberCorrector(values[i])
+				if not tableToTableId[v]
+				then
+					tableToTableId[v] = getTableId(v)
+					recursiveTraverseFindTables(v)
+				end
 			end
 		end
-		
+		for i, v in pairs(table)
+		do
+			addAndContinue(i)
+			addAndContinue(v)
+		end	
 	end
-	helperRecursiveNumberCorrector(returnTable)
-	return returnTable
+	tableToTableId[t] = getTableId(t)
+	recursiveTraverseFindTables(t)
+	return tableToTableId
 end
+
+
+function serialize(t, File)
+	if type(t) ~= "table"
+	then
+		error("t must be a table")
+	end
+	--Creating the index
+	local INDEX_NAME = "index"
+	local tableToId = findTables(t)
+	local file = love.filesystem.newFile(File)
+	file:open("w")
+	file:write(string.format("local %s = {", INDEX_NAME))
+	local idList_EmptyTable = {}
+	for _, id in pairs(tableToId)
+	do
+		idList_EmptyTable[#idList_EmptyTable + 1] = id.." = {}"
+	end
+	file:write(table.concat(idList_EmptyTable, ", "))
+	file:write("}\n")
+	
+	--Placing the principle table (The one to be returned)
+	file:write(string.format("local TOP_TABLE = index.%s\n", getTableId(t)))
+	
+	
+	--Settingup the pairs
+	for table, id in pairs(tableToId)
+	do
+		for i, v in pairs(table)
+		do
+			if type(i) == "function" or type(v) == "function" then goto continue end
+			local wasTable = false
+			if type(i) == "table" then i = tableToId[i] end
+			if type(v) == "table" then v = tableToId[v] wasTable = true end
+			if type(i) == "string" then i = string.format("\"%s\"", i) end
+			if type(v) == "string" then v = string.format("\"%s\"", v) end
+			if wasTable then v = string.format("index[%s]", v) end
+			file:write(string.format("index[\"%s\"][%s] = %s\n", id, i, v))
+			::continue::
+		end
+	end
+	
+	file:write("return TOP_TABLE\n")
+	file:close()
+end
+	
+function deserialize(File)
+	return love.filesystem.load(File)()
+	
+end
+	
