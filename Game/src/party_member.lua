@@ -5,7 +5,7 @@ PartyMember.HealthState = Enum.new({"Great", "Good", "Fair", "Poor"})
 PartyMember.TravelingSpeed = Enum.new({"Balanced", "Strenuous", "Grueling"})
 PartyMember.FoodAmount = Enum.new({"Hearty", "Meager", "Sparse"})
 
-function PartyMember.getName()
+function PartyMember.getName(self)
 	return self._name
 end
 
@@ -28,7 +28,9 @@ function PartyMember.getHealthStateForNumber(healthVal)
 	end
 end
 
-
+function PartyMember.getHealthState(self)
+	return PartyMember.getHealthStateForNumber(self:getNumericHealthState())
+end
 
 function PartyMember.getNumericHealthState(self)
 	return self._healthState
@@ -41,7 +43,7 @@ end
 
 function PartyMember.new(name, class)
 	self = {}
-	setmetatable(PartyMember, self)
+	setmetatable(self, {__index = PartyMember})
 	if not Enum.isInEnum(PartyMember.Classes, class)
 	then
 		error(string.format("%s is not a class", class))

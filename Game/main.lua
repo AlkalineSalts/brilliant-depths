@@ -5,6 +5,7 @@ require("src.textbox")
 require("src.TextGameFramework.save_functions")
 require("src.logger")
 require("src.save_util")
+require("src.modding_functions")
 Logger.startLogger("log.txt")
 
 --Security:
@@ -53,7 +54,7 @@ end
 function GameManager.setTransition(transition)
 	GameManager.transition = transition
 end
-
+require("src.screens.mining_screen")
 function love.load()
 	local defaultFont = love.graphics.newFont("Fonts/ibm-plex-mono/IBMPlexMono-Bold.ttf", 20)
 	love.graphics.setFont(defaultFont)

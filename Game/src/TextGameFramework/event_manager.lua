@@ -47,7 +47,7 @@ function EventManager.get_event(self, name, game_data)
 		then
 			error(string.format("No valid next event in event group %s for current game state", name))
 		end
-		return e_group[math.random(#valid_events)]
+		return valid_events[math.random(#valid_events)]
 	else
 		local event = self._event_name_to_event[name]
 		if not event

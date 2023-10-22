@@ -1,7 +1,7 @@
 require("src.util")
 local DepthInfo = {}
 local function createStruct(depthMin, depthMax, layer_n)
-	return {depthMinimum = depthMin, depthMaximum = depthMax, layer_name = layer_n, layer_image = love.graphics.newImage("Images/"..layer_n..".png")}
+	return {depthMinimum = depthMin, depthMaximum = depthMax, layerName = layer_n, layer_image = love.graphics.newImage("Images/"..layer_n..".png")}
 end
 
 local dataTable = {}
@@ -11,23 +11,13 @@ dataTable[3] = createStruct(3000, 7000, "layer3")
 dataTable[4] = createStruct(7000, 10000, "layer4")
 dataTable[5] = createStruct(10000, 13000, "layer5")
 
-function DepthInfo.getLayerFromDepth(depth)
+function DepthInfo.getLayerFromNumber(layerNum)
 	--find datatable
-	local correctLayer = nil
-	for _, table in ipairs(dataTable)
-	do
-		if table.depthMinimum <= depth
-		then
-			correctLayer = table
-			break
-		end
-	end
-	if not correctLayer
-	then
-		error(string.format("%d is not a valid depth", depth))
-	end
-	--Copy table
-	return table.shallowCopy(correctLayer)
+	return table.shallowCopy(dataTable[layerNum])
+end
+
+function DepthInfo.getNumberOfLayers()
+	return #dataTable
 end
 
 return DepthInfo

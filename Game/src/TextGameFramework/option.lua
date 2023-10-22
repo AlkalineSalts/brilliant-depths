@@ -10,7 +10,7 @@ the option is not selectable
 
 Option = {_text = "Default", _should_be_visible = false}
 
---Replace this to create custom behavior, determines if the option can be clicked/visible
+--Replace this to create custom behavior, determines if the option can be selected
 function Option.is_selectable(self, game_data)
 	return true
 end
@@ -47,7 +47,7 @@ function Option.get_text(self) -- Can be changed
 end
 
 function Option.__eq(first, second) --should not be changed
-	return first._text == second._second
+	return first._text == second._text
 end
 
 function Option.new(text, should_be_visible) --obviously should not be changed
@@ -55,7 +55,7 @@ function Option.new(text, should_be_visible) --obviously should not be changed
 	local meta = {__index = Option, __eq = Option.__eq}
 	setmetatable(o, meta)
 	o._text = text
-	o._should_be_visible = should_be_visible or true
+	o._should_be_visible = should_be_visible or false
 	return o
 end
 

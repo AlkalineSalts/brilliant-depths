@@ -9,6 +9,8 @@ math.randomseed = function() error("I have removed the ability to set the random
 
 --tableEquality defined in util
 local function initializeSaveData(table)
+	setRandomSeed(table.randomseed)
+	table.inventory.changeItemAmount = function(self, item_name, changeAmount) self[item_name] = self[item_name] + changeAmount if self[item_name] < 1 then self[item_name] = nil end end
 	setmetatable(table.inventory, {__index = function(table, key) val = rawget(table, key) if val then return val else return 0 end end, __eq = tableEquality}) --When inventory doesn't have an item, returns 0
 	for _, party_member in pairs(table.party)
 	do
@@ -26,14 +28,16 @@ local function initializeSaveData(table)
 		return PartyMember.getHealthStateForNumber(health_avg)
 	end
 	
-	table.party.findPartyMember = function (self, boolFunc)
+	table.party.findPartyMembers = function (self, boolFunc)
+		local list = {}
 		for _, member in ipairs(self)
 		do
-			if boolFunc(member) then return member end
+			if boolFunc(member) then list[#list + 1] = member end
 		end
-		return nil
+		return list
 	end
-	setRandomSeed(table.randomseed)
+	
+	
 	
 end
 function SaveUtil.loadSaveData(savePath)
@@ -42,7 +46,7 @@ function SaveUtil.loadSaveData(savePath)
 	return data
 end
 function SaveUtil.getDefaultSaveData()
-	local data = {randomseed = getSystemTime(), inventory = {}, party = {}, event_data = {}, currency = 0, misc = {}, day = 1, depth = 0, traveling_speed = PartyMember.TravelingSpeed.Balanced}
+	local data = {randomseed = getSystemTime(), inventory = {}, party = {}, event_data = {}, currency = 0, misc = {}, day = 1, depth = 0, layer = 1, traveling_speed = PartyMember.TravelingSpeed.Balanced, food_consumption_amount = PartyMember.FoodAmount.Hearty}
 	initializeSaveData(data)
 	return data
 end
@@ -75,17 +79,3 @@ function SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(dirname) --inter
 	end
 end
 
-function getEventSaveLocation(event, saveData)
-	local event_data = saveData.event_data
-	local event_name = event:get_name()
-	local this_event_data_table = event_data[event_name]
-	if this_event_data_table
-	then
-		return this_event_data_table
-	else
-		this_event_data_table = {}
-		event_data[event_name] = this_event_data_table
-		return this_event_data_table
-	end
-end
-	

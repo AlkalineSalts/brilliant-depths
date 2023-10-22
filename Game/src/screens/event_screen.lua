@@ -41,8 +41,13 @@ function EventScreen.new(event)
 	local optionsBoxes = {}
 	for _, option in ipairs(options)
 	do
-		local newTextbox = HighlightTextbox.new(WordDownshiftTextbox.new(option:get_text(), options_text_font, nil, Screen.width * 3/4))
-		newTextbox.click = createSelectOption(option)
+		local newTextbox = WordDownshiftTextbox.new(option:get_text(), options_text_font, nil, Screen.width * 3/4)
+		--This is more like an inverse, if it isn't selectable, do not make it selectable.
+		if option:is_selectable(GameManager.saveData) 
+		then
+			newTextbox = HighlightTextbox.new(newTextbox)
+			newTextbox.click = createSelectOption(option)
+		end
 		optionsBoxes[#optionsBoxes + 1] = newTextbox
 	end
 	self._options_collection = VerticleCollection.new(table.unpack(optionsBoxes))

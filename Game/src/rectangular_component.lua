@@ -16,7 +16,7 @@ function RectangularComponent.setHeight(self, height)
 	Component.__setHeight(self, height)
 end
 
-function RectangularComponent.new(color, x, y, width, height)
+function RectangularComponent.new(x, y, width, height, color)
 	local self = Component.new(x, y, width, height)
 	setmetatable(self, {__index = RectangularComponent})
 	self._color = color or {1,1,1,1}

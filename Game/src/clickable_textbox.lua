@@ -3,7 +3,6 @@ HighlightTextbox = {}
 --local selected_color = {255, 255, 0}
 --This is a final class
 function HighlightTextbox.draw(self)
-	print(tostring(self:__isMouseOver()))
 	if (self:__isMouseOver())
 	then
 		local real_color = self:getColor()
