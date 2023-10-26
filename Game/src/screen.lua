@@ -1,5 +1,7 @@
+require("src.component_collection")
 --Supertype of Any kind of screen
 Screen = {}
+
 Screen.width = 800
 Screen.height = 600
 
@@ -86,11 +88,24 @@ function Screen.focusHook(self, is_focused) --should be implemented by object if
 end
 
 function Screen.add(self, component)
-	if component
-	then 
 	self._component_list[#self._component_list + 1] = component
 end
+
+function Screen.remove(self, component)
+	local index = nil
+	for i, c in ipairs(self._component_list)
+	do
+		if c == component
+		then
+			index = i
+		end
+	end
+	if index then 
+		table.remove(self._component_list, index)
+	end
+	
 end
+
 
 function Screen.draw(self)
 	for _, component in ipairs(self._component_list)

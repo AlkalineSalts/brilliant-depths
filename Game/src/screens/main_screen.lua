@@ -8,6 +8,7 @@ require("src.party_member")
 require("src.enum")
 require("src.progress")
 require("src.screens.event_screen")
+require("src.screens.status_screen")
 local DepthInfo = require("src.depth_info")
 
 MainScreen = {}
@@ -15,19 +16,7 @@ MainScreen = {}
 setmetatable(MainScreen, {__index = Screen})
 
 function MainScreen._checkEvents(self)
-	local status, event = pcall(GameManager.eventManager.get_event, GameManager.eventManager, "priority_events", GameManager.saveData)
-	--If expected error ignore, repeat error if not expected error {done a bit dirty}
-	if not status 
-	then
-		
-		if not string.find(event or "", "No valid next event in event group")
-		then
-			error(event)
-		else
-			event = nil
-		end
-	end
-	
+	local event = getThisTurnEvent()
 	if event
 	then
 		GameManager.changeScreen(EventScreen.new(event))
@@ -87,10 +76,17 @@ function MainScreen.load(self)
 end
 
 function MainScreen.keypressed(self, key, scancode, isrepeat)
-	if key == "down" and not self._is_in_transition
+	if not self._is_in_transition
 	then
-		progress(GameManager.saveData)
-		self._is_in_transition = true
+		if key == "down" 
+		then
+			progress(GameManager.saveData)
+			self._is_in_transition = true
+		end
+		if key == "s"
+		then
+			GameManager.changeScreen(StatusScreen.new())
+		end
 	end
 end
 

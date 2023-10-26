@@ -15,7 +15,11 @@ setmetatable(EventScreen, {__index = Screen})
 local function createSelectOption(option)
 	local function selectOption()
 		option:select(GameManager.saveData)
-		local nextEvent = option:get_next_event_name()
+		local nextEvent = option:get_next_event_name() --nextEvent is a string or nil at this point
+		
+		--If not nil, then get the next event from the name, has the potential to become nil here
+		if nextEvent then nextEvent = getPotentialEventFromName(nextEvent) end
+		
 		if nextEvent
 		then
 			GameManager.changeScreen(EventScreen.new(nextEvent))
@@ -50,11 +54,14 @@ function EventScreen.new(event)
 		end
 		optionsBoxes[#optionsBoxes + 1] = newTextbox
 	end
-	self._options_collection = VerticleCollection.new(table.unpack(optionsBoxes))
-	self._options_collection:setX(self.topText:getX())
-	self._options_collection:setY(self.topText:getY() / 2 + Screen.height / 2 - self.topText:getHeight() / 2)
-	self:add(self._options_collection)
 	
+	if #optionsBoxes > 0
+	then
+		self._options_collection = VerticleCollection.new(table.unpack(optionsBoxes))
+		self._options_collection:setX(self.topText:getX())
+		self._options_collection:setY(self.topText:getY() / 2 + Screen.height / 2 - self.topText:getHeight() / 2)
+		self:add(self._options_collection)
+	end
 	return self
 end
 

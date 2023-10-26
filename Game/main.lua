@@ -76,15 +76,21 @@ function love.update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
+	if not GameManager.transition then
 	GameManager.inputProcessor:keypressed(key, scancode, isrepeat)
+	end
 end
 
 function love.mousepressed(x,  y, number, istouch)
+	if not GameManager.transition then
 	GameManager.inputProcessor:mousepressed(x,y,number,istouch)
+	end
 end
 
 function love.mousereleased(x, y, number, istouch)
+	if not GameManager.transition then
 	GameManager.inputProcessor:mousereleased(x,y,number,istouch)
+	end
 end
 
 function love.mousefocus(is_m_focused)

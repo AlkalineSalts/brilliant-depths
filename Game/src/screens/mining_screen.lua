@@ -1,7 +1,6 @@
 require("src.screen")
 require("src.drawable_image")
 require("src.rectangular_component")
-require("src.circle")
 require("src.util")
 MiningGameScreen = {}
 local MINING_SCREEN_WIDTH = 400

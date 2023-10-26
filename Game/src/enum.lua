@@ -13,9 +13,8 @@ function Enum.values(enum)
 	
 end
 
-function Enum.getEnumName(enum, enum_value)
-	local backingTable = getmetatable(enum).__index
-	local valuesTable = {}
+function Enum.toString(enum, enum_value)
+	local valuesTable = Enum.values(enum)
 	return valuesTable[enum_value]
 end
 

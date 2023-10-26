@@ -13,6 +13,10 @@ end
 function DrawableImage.new(image, width, height)
 	self = Component.new()
 	setmetatable(self, {__index = DrawableImage})
+	if type(image) == "string"
+	then
+		image = love.graphics.newImage(image)	
+	end
 	self._image = image
 	local imageWidth, imageHeight
 	if image

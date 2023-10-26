@@ -77,6 +77,21 @@ function ComponentCollection.add(self, c)
 	self._component_list[#self._component_list + 1] = c
 end
 
+function ComponentCollection.remove(self, component)
+	local index = nil
+	for i, c in ipairs(self._component_list)
+	do
+		if c == component
+		then
+			index = i
+		end
+	end
+	if index then 
+		table.remove(self._component_list, index)
+	end
+	
+end
+
 function ComponentCollection.new(...) --takes any # of components, will set the first component x y to this componenets x y. the x and y of all other components are moved relative to that shift
 	local self = Component.new()
 	setmetatable(self, {__index = ComponentCollection})

@@ -1,6 +1,26 @@
 require("src.party_member")
 local DepthInfo = require("src.depth_info")
 
+function getPotentialEventFromName(groupName)
+	local status, event = pcall(GameManager.eventManager.get_event, GameManager.eventManager, groupName, GameManager.saveData)
+	--If expected error ignore, repeat error if not expected error {done a bit dirty}
+	if not status 
+	then
+		
+		if not string.find(event or "", "No valid next event in event group")
+		then
+			error(event)
+		else
+			event = nil
+		end
+	end	
+	return event
+end
+
+function getThisTurnEvent()
+	return getPotentialEventFromName("terminal_events") or getPotentialEventFromName("priority_events")
+end
+
 local function eatFood(saveData)
 end
 
