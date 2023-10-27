@@ -1,7 +1,8 @@
 --This file will deal with the title screen.
 require("src.TextGameFramework.event_manager")
 require("src.screen")
-require("src.textbox")
+require("src.screens")
+require("src.util")
 require("src.TextGameFramework.save_functions")
 require("src.logger")
 require("src.save_util")
@@ -13,7 +14,6 @@ require("src.security")
 
 GameManager = {} --global used to determine what happens on screen, changing its metatables changes what the defined love functions will do
 --game manager defines a field screen which holds the current screen and delegates all activities to it
-local TitleScreen = require("src.screens.titlescreen")
 local eventDirectory = "GameRoot"
 SaveUtil.copyFromSourceToWritableAreaIfNotPresentThere(eventDirectory)
 GameManager.eventManager = EventManager.new(eventDirectory)

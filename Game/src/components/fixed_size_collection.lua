@@ -1,4 +1,4 @@
-require("src.component_collection")
+require("src.components.component_collection")
 FixedSizeCollection = {}
 function FixedSizeCollection.makeFixedSize(component_collection, width, height)
 	if not component_collection then error("Must use a component collection") end

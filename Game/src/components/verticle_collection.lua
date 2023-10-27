@@ -1,5 +1,5 @@
 
-require("src.component_collection")
+require("src.components.component_collection")
 VerticleCollection = {}
 setmetatable(VerticleCollection, {__index = ComponentCollection})
 function VerticleCollection.add(self, component)

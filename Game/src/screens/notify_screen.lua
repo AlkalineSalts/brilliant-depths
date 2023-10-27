@@ -1,7 +1,5 @@
 require("src.screen")
-require("src.word_downshift_textbox")
-require("src.verticle_collection")
-require("src.drawable_image")
+require("src.components")
 NotifyScreen = {}
 setmetatable(NotifyScreen, {__index = Screen})
 function NotifyScreen.new(notifyText, returnScreen)

@@ -1,16 +1,8 @@
 require("src.screen")
-require("src.component_collection")
-require("src.clickable_textbox")
-require("src.drawable_image")
-require("src.horizontal_collection")
-require("src.verticle_collection")
-require("src.fixed_size_collection")
-require("src.linear_textbox")
-require("src.rectangular_component")
+require("src.components")
 require("src.party_member")
 require("src.enum")
 require("src.util")
-require("src.word_downshift_textbox")
 StatusScreen = {}
 setmetatable(StatusScreen, {__index = Screen})
 StatusScreen.Inventory_List_Size = 10

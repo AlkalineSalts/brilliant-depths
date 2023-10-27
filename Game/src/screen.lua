@@ -1,4 +1,4 @@
-require("src.component_collection")
+require("src.components.component_collection")
 --Supertype of Any kind of screen
 Screen = {}
 

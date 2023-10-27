@@ -1,4 +1,3 @@
-require("src.screen")
 --for lua 5.1, implementing table.unpack()
 function table.unpack(t)
 	function unpacker_helper(t, index)

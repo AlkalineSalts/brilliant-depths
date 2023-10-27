@@ -1,5 +1,5 @@
 EnterableTextbox = {}
-require("src.linear_textbox")
+require("src.components.linear_textbox")
 --This is a final class
 setmetatable(EnterableTextbox, {__index = LinearTextbox})
 function EnterableTextbox.click(self)

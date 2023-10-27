@@ -1,9 +1,9 @@
-require("src.component_collection")
-require("src.enterable_textbox")
-require("src.drawable_image")
+require("src.components.component_collection")
+require("src.components.enterable_textbox")
+require("src.components.drawable_image")
 require("src.util")
 require("src.next_previous")
-require("src.textbox")
+require("src.components.textbox")
 SelectableBar = {}
 setmetatable(SelectableBar, {__index = ComponentCollection})
 function SelectableBar.textChanged(self)

@@ -1,4 +1,4 @@
-require("src.textbox")
+require("src.components.textbox")
 LinearTextbox = {}
 setmetatable(LinearTextbox, {__index = Textbox})
 

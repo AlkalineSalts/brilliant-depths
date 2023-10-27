@@ -1,11 +1,7 @@
 require("src.util")
 require("src.screen")
 require("src.component")
-require("src.clickable_textbox")
-require("src.enterable_textbox")
-require("src.word_downshift_textbox")
-require("src.verticle_collection")
-require("src.linear_textbox")
+require("src.components")
 require("src.transition.simple_transition")
 EventScreen = {}
 setmetatable(EventScreen, {__index = Screen})

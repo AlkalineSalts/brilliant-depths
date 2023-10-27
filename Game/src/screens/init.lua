@@ -1,0 +1,8 @@
+require("src.screens.difficulty_screen")
+require("src.screens.event_screen")
+require("src.screens.main_screen")
+require("src.screens.mining_screen")
+require("src.screens.notify_screen")
+require("src.screens.shop_screen")
+require("src.screens.status_screen")
+require("src.screens.titlescreen")
