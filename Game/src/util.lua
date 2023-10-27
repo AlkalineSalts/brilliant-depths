@@ -1,3 +1,4 @@
+require("src.screen")
 --for lua 5.1, implementing table.unpack()
 function table.unpack(t)
 	function unpacker_helper(t, index)
@@ -80,4 +81,17 @@ function tableEquality(t1, t2) --checks if tables are equal by checking if they 
 		return true
 	end
 	return tableEqualityHelper(t1, t2)	
+end
+
+function isInstanceOf(value, potentialSuperclass)
+	local classTable = getmetatable(value).__index
+	if classTable == potentialSuperclass
+	then
+		return true
+	elseif classTable == nil
+	then
+		return false
+	else
+		return isInstanceOf(classTable, potentialSuperclass)
+	end
 end

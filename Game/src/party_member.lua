@@ -1,7 +1,6 @@
 require("src.enum")
 PartyMember = {}
 PartyMember.Classes = Enum.new({"Adventurer", "Excavator", "Hunter", "Navigator", "Crafter"})
-PartyMember.HealthState = Enum.new({"Great", "Good", "Fair", "Poor"})
 PartyMember.TravelingSpeed = Enum.new({"Balanced", "Strenuous", "Grueling"})
 PartyMember.FoodAmount = Enum.new({"Hearty", "Meager", "Sparse"})
 
@@ -16,15 +15,15 @@ end
 function PartyMember.getHealthStateForNumber(healthVal)
 	if healthVal >= 75
 	then
-		return PartyMember.HealthState.Great
+		return "Great"
 	elseif healthVal < 75 and healthVal >= 50
 	then
-		return PartyMember.HeathState.Good
+		return "Good"
 	elseif healthVal < 50 and healthVal >= 25
 	then
-		return PartyMember.HeathState.Fair
+		return "Fair"
 	else
-		return PartyMember.HealthState.Poor
+		return "Poor"
 	end
 end
 

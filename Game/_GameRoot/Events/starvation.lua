@@ -5,7 +5,7 @@ function StarvationEvent.can_be_chosen(self, game_data)
 	local starvingMembers = {}
 	for memberNum, member in ipairs(game_data.party)
 	do
-		if game_data.inventory.Food == 0 and member:getHealthState() == PartyMember.HealthState.Poor and math.random(3) == 3
+		if game_data.inventory.Food == 0 and member:getHealthState() == "Poor" and math.random(3) == 3
 		then
 			table.insert(starvingMembers, memberNum)
 		end

@@ -90,11 +90,11 @@ The party is a list of the players. This means that when adding or removing a pl
 *	PartyMember.getClass(self) - Gets the class of the party member. Value returned is of PartyMember.Classes.
 *	PartyMember.getNumericHealthState(self) - Gets the healthstate of the player as a number from 0 to 100.
 *	PartyMember.setNumericHealthState(self, value) - Sets the healthstate of the player. Must a a number. Is capped at 100 and floored at 0.
-*	PartyMember.getHealthState(self) - Gets the healthstate. Value returned is of PartyMember.HealthState. Values are {Great, Good, Fair, Poor}
+*	PartyMember.getHealthState(self) - Gets the healthstate. Value returned is a string. Potential values are {Great, Good, Fair, Poor}
 
 Additionally, the party has some functions of its own.
 
-*	party.getAverageHealth(self) - returns the average healthstate of the party. Returns it as the enum PartyMember.HealthState
+*	party.getAverageHealth(self) - returns the average healthstate of the party. Returns it as a string of values {Great, Good, Fair, Poor}.
 *	party.findPartyMembers(self, boolFunc) --Accepts a boolean function, which it applies to the party members as (boolFunc(party_member)). Returns a list which contains all party members that meet this criteria. Returns an empty list if none fit the criteria. 
 
 #### Event Data ####

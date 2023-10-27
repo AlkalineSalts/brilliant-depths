@@ -17,14 +17,21 @@ local function createSelectOption(option)
 		option:select(GameManager.saveData)
 		local nextEvent = option:get_next_event_name() --nextEvent is a string or nil at this point
 		
-		--If not nil, then get the next event from the name, has the potential to become nil here
-		if nextEvent then nextEvent = getPotentialEventFromName(nextEvent) end
-		
-		if nextEvent
+		--If not nil, then get the next event from the name, has the potential to become nil
+		::top::
+		if nextEvent == nil
 		then
+			GameManager.changeScreen(MainScreen.new())
+		elseif isInstanceOf(nextEvent, Screen)
+		then
+			GameManager.changeScreen(nextEvent)
+		elseif type(nextEvent) == "string"
+		then 
+			nextEvent = getPotentialEventFromEventGroup(nextEvent)
+			if nextEvent == nil then goto top end
 			GameManager.changeScreen(EventScreen.new(nextEvent))
 		else
-			GameManager.changeScreen(MainScreen.new())
+			error(string.format("Result from get_next_event_name was neither a subclass of screen or a string name"))
 		end
 	end
 	return selectOption
