@@ -74,7 +74,7 @@ function MiningGameScreen.draw(self)
 			self._spritebatch:add(tileValToQuad[self._grid[x][y]:getTileValue()], x * IMAGE_CONSTANT, y * IMAGE_CONSTANT)
 		end
 	end
-	love.graphics.draw(self._spritebatch, Screen.width / 2 - MINING_SCREEN_WIDTH / 2, Screen.height / 2 - MINING_SCREEN_HEIGHT / 2)
+	love.graphics.draw(self._spritebatch, self._miningfield_x, self._miningfield_y)
 	
 	
 	Screen.draw(self)
@@ -107,6 +107,62 @@ local function growFrom(tile, num_grow)
 	return markedTiles
 end
 
+local Hammer = {
+	swing = function(self, miningTile) -- n^2, but only for a small number od items, will be fine
+		local firstSet = {}
+		local secondSet = {}
+		--Expands outward in all directions twice, and then removes all tiles that do are not adjacent more to more than one other tile
+		for _, tile in ipairs(miningTile:getAdjacent())
+		do
+			firstSet[tile] = true
+			secondSet[tile] = true
+		end
+		for tile, _ in pairs(firstSet)
+		do
+			for _, adj in ipairs(tile:getAdjacent())
+			do
+				secondSet[adj] = true
+			end
+		end 
+		local shallowCopy = table.shallowCopy(secondSet)
+		for tile, _ in pairs(shallowCopy)
+		do
+			local timesPresentInAdjacent = 0
+			for mt, _ in pairs(shallowCopy)
+			do
+				local adjacent = mt:getAdjacent()
+				for _, t in ipairs(adjacent)
+				do
+					if tile == t
+					then
+						timesPresentInAdjacent = timesPresentInAdjacent + 1
+					end
+				end
+			end
+			if timesPresentInAdjacent == 1 
+			then
+				secondSet[tile] = nil
+			end
+		end
+		--Finished eliminating extremities, now break
+		for tile, _ in pairs(secondSet)
+		do
+			tile:decrementTile()
+			tile:decrementTile()
+		end
+	end
+}
+local Pickaxe = {
+	swing = function(self, miningTile)
+		miningTile:decrementTile()
+		miningTile:decrementTile()
+		for _, tile in ipairs(miningTile:getAdjacent())
+		do
+			tile:decrementTile()
+		end
+	end
+}
+
 
 function MiningGameScreen._putBackPickaxe(self)
 	self._pick_up_pick_image:setImage(PICKAXE_IMAGE)
@@ -115,6 +171,7 @@ end
 function MiningGameScreen._pickUpPickaxe(self)
 	self._pick_up_pick_image:setImage(nil)
 	love.mouse.setCursor(CURSOR_PICKAXE)
+	self._selected_tool = Pickaxe
 end
 
 function MiningGameScreen._putBackHammer(self)
@@ -124,13 +181,28 @@ end
 function MiningGameScreen._pickUpHammer(self)
 	self._pick_up_hammer_image:setImage(nil)
 	love.mouse.setCursor(CURSOR_HAMMER)
+	self._selected_tool = Hammer
 end
+function MiningGameScreen.mousepressed(self, x, y, number, istouch)
+	-- Shift sideways & up for easier math
+	x = x - self._miningfield_x
+	y = y - self._miningfield_y
+	local tileX = math.floor(x / IMAGE_CONSTANT)
+	local tileY = math.floor(y / IMAGE_CONSTANT)
+	if self._selected_tool and tileX >= 0 and tileX < NumSquareWidth and tileY >= 0 and tileY < NumSquareWidth
+	then
+		self._selected_tool:swing(self._grid[tileX][tileY])
+	end
+end
+
 
 function MiningGameScreen.new()
 	local self = Screen.new()
 	setmetatable(self, {__index = MiningGameScreen})
 	self._grid = {}
 	self._spritebatch = love.graphics.newSpriteBatch(TILE_IMAGE, NumSquareWidth * NumSquareWidth, "stream")
+	self._miningfield_x = Screen.width / 2 - MINING_SCREEN_WIDTH / 2
+	self._miningfield_y = Screen.height / 2 - MINING_SCREEN_HEIGHT / 2
 	--Setup the grid
 	for x = 0, NumSquareWidth - 1
 	do
@@ -177,7 +249,7 @@ function MiningGameScreen.new()
 	self._selected_tool = nil
 	self._pick_up_pick_image = DrawableImage.new(PICKAXE_IMAGE, 80, 80)
 	self._pick_up_pick_image.click = function() 
-		if self._selected_tool ~= "pickaxe"
+		if self._selected_tool ~= Pickaxe
 		then
 			self:_putBackHammer()
 			self:_pickUpPickaxe()
@@ -185,7 +257,7 @@ function MiningGameScreen.new()
 	end
 	self._pick_up_hammer_image = DrawableImage.new(HAMMER_IMAGE, 80, 80)
 	self._pick_up_hammer_image.click = function()
-		if self._selected_tool ~= "hammer"
+		if self._selected_tool ~= Hammer
 		then
 			self:_putBackPickaxe()
 			self:_pickUpHammer()
