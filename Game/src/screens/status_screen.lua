@@ -1,12 +1,13 @@
 require("src.screen")
 require("src.components")
 require("src.party_member")
+require("src.progress")
 require("src.enum")
 require("src.util")
 StatusScreen = {}
 setmetatable(StatusScreen, {__index = Screen})
 StatusScreen.Inventory_List_Size = 10
-
+StatusScreen.KeyItems = {"Food"}
 
 
 
@@ -22,6 +23,7 @@ function StatusScreen.new(inventory_screen_page)
 	end	
 	
 	local partyMemberFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 16)
+	local middleFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 18)
 	local function createPartySection()
 	local member_collection = VerticleCollection.new(LinearTextbox.new("Party Members\n", partyMemberFont))
 		for i, member in ipairs(GameManager.saveData.party)
@@ -34,11 +36,7 @@ function StatusScreen.new(inventory_screen_page)
 		end
 		return member_collection
 	end
-	
-	local function createInventorySection(inventory)
-		local inventory_collection = VerticleCollection.new(LinearTextbox.new("Inventory\n", partyMemberFont))
-		
-		--Inventory number to item name
+	local function sortInventoryKeys(inventory) 
 		local toSort = {}
 		local i = 1
 		for item_name, value in pairs(inventory)
@@ -50,6 +48,13 @@ function StatusScreen.new(inventory_screen_page)
 			end
 		end
 		table.sort(toSort)
+		return toSort
+	end
+	local function createInventorySection(inventory)
+		local inventory_collection = VerticleCollection.new(LinearTextbox.new("Inventory\n", partyMemberFont))
+		
+		--Inventory number to item name
+		toSort = sortInventoryKeys(inventory)
 		local startsAt = 1 + ((self.inventory_screen_page - 1) * StatusScreen.Inventory_List_Size)
 		for index = startsAt, (startsAt + StatusScreen.Inventory_List_Size - 1)
 		do
@@ -78,11 +83,36 @@ function StatusScreen.new(inventory_screen_page)
 		return inventory_collection
 	end
 	
+	local function createKeyItemsSection(inventory)
+		--Removes the key items from the given table and displays
+		local layer = LinearTextbox.new(string.format("Layer %d", GameManager.saveData.layer), middleFont)
+		local days = LinearTextbox.new(string.format("Day: %d", GameManager.saveData.day), middleFont)
+		
+		local vc = VerticleCollection.new(layer, days)
+		for _, item_name in ipairs(StatusScreen.KeyItems)
+		do
+			vc:add(LinearTextbox.new(string.format("%s: %d", item_name, inventory[item_name]), middleFont))
+			inventory[item_name] = nil
+		end
+		
+		local avg_health = LinearTextbox.new(string.format("Average Health: %s", GameManager.saveData.party:getAverageHealth()), middleFont)
+		local traveling_speed = LinearTextbox.new("Traveling Speed: "..Enum.toString(PartyMember.TravelingSpeed, GameManager.saveData.traveling_speed), middleFont)
+		local rations = LinearTextbox.new("Rations: "..Enum.toString(PartyMember.FoodAmount, GameManager.saveData.food_consumption_amount), middleFont)
+		vc:add(avg_health)
+		vc:add(traveling_speed)
+		vc:add(rations)
+		
+		return vc
+	end
+	
 	local function createColumn(sizeLimit) --Options and potentially key stats and items listed
-		local optionFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 18)
-		local changeTravelingSpeed = HighlightTextbox.new(WordDownshiftTextbox.new("Change Traveling Speed.", optionFont, nil, sizeLimit))
-		local changeGait = HighlightTextbox.new(WordDownshiftTextbox.new("Change Ration Amount.", optionFont, nil, sizeLimit))
-		local goBackOption = HighlightTextbox.new(WordDownshiftTextbox.new("Go back to main screen.", optionFont, nil, sizeLimit))
+		
+		local changeTravelingSpeed = HighlightTextbox.new(WordDownshiftTextbox.new("Change Traveling Speed.", middleFont, nil, sizeLimit))
+		changeTravelingSpeed.click = function () GameManager.changeScreen(EventScreen.new(getPotentialEventFromName("status_screen_change_speed"))) end
+		local changeGait = HighlightTextbox.new(WordDownshiftTextbox.new("Change Ration Amount.", middleFont, nil, sizeLimit))
+		changeGait.click = function() GameManager.changeScreen(EventScreen.new(getPotentialEventFromName("status_screen_change_rations"))) end
+		local goBackOption = HighlightTextbox.new(WordDownshiftTextbox.new("Go back to main screen.", middleFont, nil, sizeLimit))
+		goBackOption.click = function() GameManager.changeScreen(MainScreen.new()) end
 		
 		
 		local vc = VerticleCollection.new(changeTravelingSpeed, changeGait, goBackOption)
@@ -93,11 +123,15 @@ function StatusScreen.new(inventory_screen_page)
 	
 	local member_collection = createPartySection()
 	local memberCollectionBorder = RectangularComponent.new(member_collection:getWidth(), 0, 3, Screen.height, {1, 1, 1, 1})
-	local inventory_collection = createInventorySection(GameManager.saveData.inventory)
+	local inventory_copy = table.shallowCopy(GameManager.saveData.inventory)
+	local key_items = createKeyItemsSection(inventory_copy)
+	local inventory_collection = createInventorySection(inventory_copy)
 	local inventoryCollectionBorder = RectangularComponent.new(Screen.width - inventory_collection:getWidth() - 3, 0, 3, Screen.height, {1, 1, 1, 1})
 	local optionsCollection = createColumn(inventoryCollectionBorder:getX() - memberCollectionBorder:getX() + memberCollectionBorder:getWidth())
-	optionsCollection:setX(memberCollectionBorder:getX() + memberCollectionBorder:getWidth())
-	local component_collection = ComponentCollection.new(member_collection, memberCollectionBorder, inventoryCollectionBorder, optionsCollection, inventory_collection)
+	key_items:add(RectangularComponent.new(0, 0, inventoryCollectionBorder:getX() - memberCollectionBorder:getX(), 3, {1,1,1,1}))
+	key_items:add(optionsCollection)
+	key_items:setX(memberCollectionBorder:getX() + memberCollectionBorder:getWidth())
+	local component_collection = ComponentCollection.new(member_collection, memberCollectionBorder, inventoryCollectionBorder, key_items, inventory_collection)
 	self:add(component_collection)
 	
 	

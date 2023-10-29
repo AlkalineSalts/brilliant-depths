@@ -3,6 +3,7 @@ require("src.screen")
 require("src.component")
 require("src.components")
 require("src.transition.simple_transition")
+local Color = require("src.color")
 EventScreen = {}
 setmetatable(EventScreen, {__index = Screen})
 
@@ -44,7 +45,7 @@ function EventScreen.new(event)
 	
 	
 	
-	local options = event:get_options()
+	local options = event:get_options(GameManager.saveData)
 	local optionsBoxes = {}
 	for _, option in ipairs(options)
 	do
@@ -52,8 +53,11 @@ function EventScreen.new(event)
 		--This is more like an inverse, if it isn't selectable, do not make it selectable.
 		if option:is_selectable(GameManager.saveData) 
 		then
+			newTextbox:setColor(Color.WHITE)
 			newTextbox = HighlightTextbox.new(newTextbox)
 			newTextbox.click = createSelectOption(option)
+		else
+			newTextbox:setColor(Color.GREY)
 		end
 		optionsBoxes[#optionsBoxes + 1] = newTextbox
 	end

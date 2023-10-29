@@ -1,6 +1,7 @@
 require("src.screen")
 require("src.components")
 require("src.util")
+local Color = require("src.color")
 MiningGameScreen = {}
 local MINING_SCREEN_WIDTH = 400
 local MINING_SCREEN_HEIGHT = 400
@@ -8,7 +9,11 @@ local NumSquareWidth = 10
 setmetatable(MiningGameScreen, {__index = Screen})
 
 --Assumes pixels 40 x 40 images and 6 imaxes (40 x 240)
-local TILE_IMAGE = love.graphics.newImage("Images/mining_tiles.png")
+local TILE_IMAGE = love.graphics.newImage("Images/Mining/mining_tiles.png")
+local PICKAXE_IMAGE = love.graphics.newImage("Images/Mining/pickaxe-80.png")
+local HAMMER_IMAGE = love.graphics.newImage("Images/Mining/hammer-80.png")
+local CURSOR_HAMMER = love.mouse.newCursor("Images/Mining/hammer.png", 9, 9)
+local CURSOR_PICKAXE = love.mouse.newCursor("Images/Mining/pickaxe.png", 9, 9)
 local IMAGE_CONSTANT = 40
 
 local tileValToQuad = {}
@@ -60,8 +65,6 @@ end
 
 
 function MiningGameScreen.draw(self)
-	Screen.draw(self)
-	
 	--Ready the spritebatch, then draw
 	self._spritebatch:clear()
 	for x = 0, NumSquareWidth - 1
@@ -72,6 +75,9 @@ function MiningGameScreen.draw(self)
 		end
 	end
 	love.graphics.draw(self._spritebatch, Screen.width / 2 - MINING_SCREEN_WIDTH / 2, Screen.height / 2 - MINING_SCREEN_HEIGHT / 2)
+	
+	
+	Screen.draw(self)
 end
 
 local function growFrom(tile, num_grow)
@@ -100,7 +106,25 @@ local function growFrom(tile, num_grow)
 	end
 	return markedTiles
 end
-			
+
+
+function MiningGameScreen._putBackPickaxe(self)
+	self._pick_up_pick_image:setImage(PICKAXE_IMAGE)
+end
+
+function MiningGameScreen._pickUpPickaxe(self)
+	self._pick_up_pick_image:setImage(nil)
+	love.mouse.setCursor(CURSOR_PICKAXE)
+end
+
+function MiningGameScreen._putBackHammer(self)
+	self._pick_up_hammer_image:setImage(HAMMER_IMAGE)
+end
+
+function MiningGameScreen._pickUpHammer(self)
+	self._pick_up_hammer_image:setImage(nil)
+	love.mouse.setCursor(CURSOR_HAMMER)
+end
 
 function MiningGameScreen.new()
 	local self = Screen.new()
@@ -150,6 +174,28 @@ function MiningGameScreen.new()
 		randomTile = spotList[math.random(#spotList)]
 	end
 	
+	self._selected_tool = nil
+	self._pick_up_pick_image = DrawableImage.new(PICKAXE_IMAGE, 80, 80)
+	self._pick_up_pick_image.click = function() 
+		if self._selected_tool ~= "pickaxe"
+		then
+			self:_putBackHammer()
+			self:_pickUpPickaxe()
+		end
+	end
+	self._pick_up_hammer_image = DrawableImage.new(HAMMER_IMAGE, 80, 80)
+	self._pick_up_hammer_image.click = function()
+		if self._selected_tool ~= "hammer"
+		then
+			self:_putBackPickaxe()
+			self:_pickUpHammer()
+		end
+	end
+	local toolCollection = VerticleCollection.new(self._pick_up_pick_image, self._pick_up_hammer_image)
+	toolCollection:setX(Screen.width - toolCollection:getWidth())
+	toolCollection:setY(Screen.height / 2 - toolCollection:getHeight() / 2)
+	
+	self:add(toolCollection)
 	
 	return self
 end
