@@ -10,11 +10,18 @@ setmetatable(MiningGameScreen, {__index = Screen})
 
 --Assumes pixels 40 x 40 images and 6 imaxes (40 x 240)
 local TILE_IMAGE = love.graphics.newImage("Images/Mining/mining_tiles.png")
+local MINING_BACKGROUND = love.graphics.newImage("Images/Mining/background_tiles.png")
 local PICKAXE_IMAGE = love.graphics.newImage("Images/Mining/pickaxe-80.png")
 local HAMMER_IMAGE = love.graphics.newImage("Images/Mining/hammer-80.png")
 local CURSOR_HAMMER = love.mouse.newCursor("Images/Mining/hammer.png", 9, 9)
 local CURSOR_PICKAXE = love.mouse.newCursor("Images/Mining/pickaxe.png", 9, 9)
 local IMAGE_CONSTANT = 40
+
+local backgroundValToQuad = {}
+for x = 1, 4
+do
+	backgroundValToQuad[x] = love.graphics.newQuad((x - 1) * IMAGE_CONSTANT, 0, IMAGE_CONSTANT, IMAGE_CONSTANT, MINING_BACKGROUND)
+end
 
 local tileValToQuad = {}
 for x = 0, 5
@@ -74,6 +81,7 @@ function MiningGameScreen.draw(self)
 			self._spritebatch:add(tileValToQuad[self._grid[x][y]:getTileValue()], x * IMAGE_CONSTANT, y * IMAGE_CONSTANT)
 		end
 	end
+	love.graphics.draw(self._background_spritebatch, self._miningfield_x, self._miningfield_y)
 	love.graphics.draw(self._spritebatch, self._miningfield_x, self._miningfield_y)
 	
 	
@@ -201,15 +209,17 @@ function MiningGameScreen.new()
 	setmetatable(self, {__index = MiningGameScreen})
 	self._grid = {}
 	self._spritebatch = love.graphics.newSpriteBatch(TILE_IMAGE, NumSquareWidth * NumSquareWidth, "stream")
+	self._background_spritebatch = love.graphics.newSpriteBatch(MINING_BACKGROUND, NumSquareWidth * NumSquareWidth, "static")
 	self._miningfield_x = Screen.width / 2 - MINING_SCREEN_WIDTH / 2
 	self._miningfield_y = Screen.height / 2 - MINING_SCREEN_HEIGHT / 2
-	--Setup the grid
+	--Setup the grid and initialize the background spritebatch
 	for x = 0, NumSquareWidth - 1
 	do
 		self._grid[x] = {}
 		for y = 0, NumSquareWidth - 1
 		do
 			self._grid[x][y] = MiningTile.new()
+			self._background_spritebatch:add(backgroundValToQuad[math.random(4)], x * IMAGE_CONSTANT, y * IMAGE_CONSTANT)
 		end
 	end
 	
