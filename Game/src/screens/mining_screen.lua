@@ -279,5 +279,6 @@ function MiningGameScreen.new()
 	
 	self:add(toolCollection)
 	
+	
 	return self
 end

@@ -8,8 +8,11 @@ require("src.screens.status_screen")
 local DepthInfo = require("src.depth_info")
 
 MainScreen = {}
-
 setmetatable(MainScreen, {__index = Screen})
+--Climber images
+local CLIMBER_STILL = love.graphics.newImage("Images/Mining/climbing_still.png")
+local CLIMBER_RIGHT = love.graphics.newImage("Images/Mining/climbing_right.png")
+local CLIMBER_LEFT = love.graphics.newImage("Images/Mining/climbing_left.png")
 
 function MainScreen._checkEvents(self)
 	local event = getThisTurnEvent()
@@ -19,11 +22,22 @@ function MainScreen._checkEvents(self)
 	end
 end
 
+function MainScreen._startTransition(self)
+	self._is_in_transition = true
+	if self.moveRight
+	then
+		self.climber_guy:setImage(CLIMBER_RIGHT)
+	else
+		self.climber_guy:setImage(CLIMBER_LEFT)
+	end
+	self.moveRight = not self.moveRight
+end
+
 function MainScreen._stopTransition(self)
 	self._is_in_transition = false
 	self:_saveGame()
 	self:_checkEvents()
-	--get any valid priority events
+	self.climber_guy:setImage(CLIMBER_STILL)
 	
 end
 
@@ -77,7 +91,7 @@ function MainScreen.keypressed(self, key, scancode, isrepeat)
 		if key == "down" 
 		then
 			progress(GameManager.saveData)
-			self._is_in_transition = true
+			self:_startTransition()
 		end
 		if key == "s"
 		then
@@ -118,10 +132,17 @@ function MainScreen.new()
 	
 	local blackBackground = RectangularComponent.new(self._ui_collection:getX(), self._ui_collection:getY(), Screen.width, self._ui_collection:getHeight(), {0,0,0,1})
 	self:add(blackBackground)
-	
 	self:add(self._ui_collection)
 	
 	
+	
+	--Initialization for the drawable guy
+	self.moveRight = true
+	self.climber_guy = DrawableImage.new(CLIMBER_STILL)
+	Screen.centerComponentOnX(self.climber_guy)
+	Screen.centerComponentOnY(self.climber_guy)
+	self:add(self.climber_guy)
+		
 	return self
 end
 
