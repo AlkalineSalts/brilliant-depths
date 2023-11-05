@@ -21,10 +21,10 @@ then
 end	
 end
 
-function FadeOut.new(fadeOutTimeMs)
+function FadeOut.new(fadeOutTimeS)
 	newFadeOut = Transition.new()
 	setmetatable(newFadeOut, {__index = FadeOut})
-	newFadeOut.fadeOutTime = fadeOutTimeMs or 1
+	newFadeOut.fadeOutTime = fadeOutTimeS or 1
 	newFadeOut.currentFadeTime = 0
 	return newFadeOut
 end

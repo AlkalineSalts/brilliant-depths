@@ -51,7 +51,7 @@ function SaveUtil.getDefaultSaveData()
 	return data
 end
 function SaveUtil.saveData(table, savePath)
-	table.randomseed = math.random(-1000000, 1000000) -- randomseed is used to maintain consistent behavior between loads
+	table.randomseed = math.random(-100000000, 100000000) -- randomseed is used to maintain consistent behavior between loads
 	setRandomSeed(table.randomseed)
 	serialize(table, savePath)
 end

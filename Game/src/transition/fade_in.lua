@@ -21,10 +21,10 @@ then
 end	
 end
 
-function FadeIn.new(fadeInTimeMs)
+function FadeIn.new(fadeInTimeS)
 	newFadeIn = Transition.new()
 	setmetatable(newFadeIn, {__index = FadeIn})
-	newFadeIn.fadeInTime = fadeInTimeMs or 1
+	newFadeIn.fadeInTime = fadeInTimeS or 1
 	newFadeIn.currentFadeTime = 0
 	return newFadeIn
 end

@@ -64,6 +64,10 @@ end
 
 function love.quit()
 	Logger.endLogger()
+	if love.filesystem.getInfo(SAVE_PATH)
+	then
+		SaveUtil.saveData(GameManager.saveData, SAVE_PATH)
+	end
 end
 
 function love.update(dt)

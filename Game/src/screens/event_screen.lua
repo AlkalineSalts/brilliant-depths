@@ -2,6 +2,7 @@ require("src.util")
 require("src.screen")
 require("src.component")
 require("src.components")
+require("src.save_util")
 require("src.transition.simple_transition")
 local Color = require("src.color")
 EventScreen = {}
@@ -11,9 +12,11 @@ setmetatable(EventScreen, {__index = Screen})
 
 local function createSelectOption(option)
 	local function selectOption()
-		option:select(GameManager.saveData)
-		local nextEvent = option:get_next_event_name() --nextEvent is a string or nil at this point
+		GameManager.saveData.current_event = nil --Rmoves current event from save data
 		
+		option:select(GameManager.saveData)
+		local nextEvent = option:get_next_event_name(GameManager.saveData) --nextEvent is a string or nil at this point
+				
 		--If not nil, then get the next event from the name, has the potential to become nil
 		::top::
 		if nextEvent == nil
@@ -24,7 +27,7 @@ local function createSelectOption(option)
 			GameManager.changeScreen(nextEvent)
 		elseif type(nextEvent) == "string"
 		then 
-			nextEvent = getPotentialEventFromEventGroup(nextEvent)
+			nextEvent = getPotentialEventFromName(nextEvent)
 			if nextEvent == nil then goto top end
 			GameManager.changeScreen(EventScreen.new(nextEvent))
 		else
@@ -44,6 +47,7 @@ function EventScreen.new(event)
 	self:add(self.topText)
 	
 	
+	GameManager.saveData.current_event = event:get_name()
 	
 	local options = event:get_options(GameManager.saveData)
 	local optionsBoxes = {}

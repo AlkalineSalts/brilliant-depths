@@ -40,7 +40,14 @@ love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
 	if love.filesystem.getInfo(SAVE_PATH)
 	then
 		self.continue = HighlightTextbox.new(LinearTextbox.new("Continue", nonTitleFont))
-		self.continue.click = function() GameManager.changeScreen(MainScreen.new()) end
+		self.continue.click = function() 
+			if GameManager.saveData.current_event
+			then
+				GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event(GameManager.saveData.current_event, GameManager.saveData)))
+			else
+				GameManager.changeScreen(MainScreen.new()) 
+			end
+		end
 	else
 		self.continue = LinearTextbox.new("Continue", nonTitleFont, {0.5, 0.5, 0.5})
 	end

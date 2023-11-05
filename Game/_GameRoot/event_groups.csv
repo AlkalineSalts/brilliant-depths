@@ -2,3 +2,9 @@ Group1,Example_Event
 priority_events,goto_layer,Castle_Rock
 health_events,starvation
 terminal_events,all_died
+layer1,gellatinous_gazer
+layer2,
+layer3,
+layer4,
+layer5,
+cave_collapse,cave_collapse_lethal

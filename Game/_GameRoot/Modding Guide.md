@@ -42,7 +42,7 @@ It also has these, although you probably will not need them.
 The option class uses these functions:
 
 *	Option.new(text, should\_be\_visible) - Used to create a new option object. It accepts a string and a boolean. The string is the text the option will display, while should\_be\_visible is optional. This parameter determines if the option should be visible even if the option isn't selectable. It defaults to false.
-*	Option.get\_next\_event\_name\_() - Returns the name of the next event, an event group to select the event from, or a subclass of Screen *You must implement this method!*
+*	Option.get\_next\_event\_name\_(self, game_data) - Returns the name of the next event, an event group to select the event from, or a subclass of Screen *You must implement this method!*
 *	Option.selected\_action(self, game_data) - This is called when the option is selected. You will implement this out if you want any effects to occur, like reducing the player's food. 
 *	Option.is\_selectable(self, game_data) - Is called to determine if the option is selectable i.e. can be clicked.
 

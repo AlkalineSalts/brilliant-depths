@@ -83,13 +83,17 @@ function tableEquality(t1, t2) --checks if tables are equal by checking if they 
 end
 
 function isInstanceOf(value, potentialSuperclass)
-	local classTable = getmetatable(value).__index
+	local classTable = getmetatable(value)
+	if classTable == nil
+	then
+		return false
+	else
+		classTable = classTable.__index
+	end
+	
 	if classTable == potentialSuperclass
 	then
 		return true
-	elseif classTable == nil
-	then
-		return false
 	else
 		return isInstanceOf(classTable, potentialSuperclass)
 	end

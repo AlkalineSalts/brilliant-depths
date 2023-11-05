@@ -35,7 +35,6 @@ end
 
 function MainScreen._stopTransition(self)
 	self._is_in_transition = false
-	self:_saveGame()
 	self:_checkEvents()
 	self.climber_guy:setImage(CLIMBER_STILL)
 	
@@ -73,15 +72,12 @@ function MainScreen.updateText(self)
 	end
 end
 
-function MainScreen._saveGame(self)
-	SaveUtil.saveData(GameManager.saveData, SAVE_PATH)
-end
+
 
 function MainScreen.load(self)
-	self._layer_info = DepthInfo.getLayerFromNumber(GameManager.saveData.layer)
-	self._background = self._layer_info.layer_image
-	self:_saveGame()
-	self:_checkEvents()
+	--self._layer_info = DepthInfo.getLayerFromNumber(GameManager.saveData.layer)
+	--self._background = self._layer_info.layer_image
+	--self:_checkEvents()
 	self:updateText()
 end
 
@@ -110,7 +106,8 @@ function MainScreen.new()
 	setmetatable(self, {__index = MainScreen})
 	self._depth = GameManager.saveData.depth --Self._depth is displayed depth, not always actual
 	self._is_in_transition = false
-	
+	self._layer_info = DepthInfo.getLayerFromNumber(GameManager.saveData.layer)
+	self._background = self._layer_info.layer_image
 	
 	--Set up graphics elements
 	self._font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)
@@ -143,6 +140,8 @@ function MainScreen.new()
 	Screen.centerComponentOnY(self.climber_guy)
 	self:add(self.climber_guy)
 		
+		
+	
 	return self
 end
 

@@ -1,6 +1,9 @@
 require("src.screen")
 require("src.components")
 require("src.util")
+require("src.item_properties")
+require("src.modding_functions")
+require("src.transition.down_shift")
 local Color = require("src.color")
 MiningGameScreen = {}
 local MINING_SCREEN_WIDTH = 400
@@ -35,7 +38,7 @@ local tile_metatable = {__index = MiningTile}
 function MiningTile.new()
 	local self = {}
 	setmetatable(self, tile_metatable)
-	self._tile_level = 1
+	self._tile_level = 2
 	self._adjacent_tiles = {}
 	return self
 end
@@ -82,10 +85,24 @@ function MiningGameScreen.draw(self)
 		end
 	end
 	love.graphics.draw(self._background_spritebatch, self._miningfield_x, self._miningfield_y)
+	--Draws the reward tiles
+	
+	for _, reward in ipairs(self._unmined_rewards_list)
+	do
+		love.graphics.draw(reward:getImage(), self._miningfield_x + reward:getX() * IMAGE_CONSTANT, self._miningfield_y + reward:getY() * IMAGE_CONSTANT)
+	end
+	for _, reward in ipairs(self._mined_rewards_list)
+	do
+		love.graphics.draw(reward:getImage(), self._miningfield_x + reward:getX() * IMAGE_CONSTANT, self._miningfield_y + reward:getY() * IMAGE_CONSTANT)
+	end
+	
+	
 	love.graphics.draw(self._spritebatch, self._miningfield_x, self._miningfield_y)
 	
 	
 	Screen.draw(self)
+	self._mining_meter_background:draw()
+	love.graphics.draw(self._mining_crack, self._mining_crack_quad, self._mining_meter_background:getX(),  self._mining_meter_background:getY())
 end
 
 local function growFrom(tile, num_grow)
@@ -115,7 +132,58 @@ local function growFrom(tile, num_grow)
 	return markedTiles
 end
 
+local Reward = {}
+
+function Reward.setX(self, x)
+	self._x = x
+end
+
+function Reward.setY(self, y)
+	self._y = y
+end
+
+function Reward.getX(self)
+	return self._x
+end
+
+function Reward.getY(self)
+	return self._y
+end
+
+function Reward.getWidth(self)
+	return self._width
+end
+
+function Reward.getHeight(self)
+	return self._height
+end
+
+local function helperIntersects(reward1, reward2)
+	return reward2:getX() >= reward1:getX() and reward2:getX() + reward2:getWidth() < reward1:getX() and reward2:getY() >= reward1:getY() and reward2:getY() + reward2:getHeight() < reward1:getY()
+end 
+
+function Reward.intersects(self, other_reward)
+	return helperIntersects(self, other_reward) or helperIntersects(other_reward, self)
+end
+
+function Reward.getImage(self)
+	return self._item_image
+end
+
+function Reward.new(item_name) --Is a rectangle
+	local self = {}
+	setmetatable(self, {__index = Reward})
+	self._item_name = item_name
+	self._item_image = love.graphics.newImage(ItemProperties.getItemProperties(self._item_name).mining_image)
+	self._width = math.max(math.floor(self._item_image:getWidth() / IMAGE_CONSTANT), 1)
+	self._height = math.max(math.floor(self._item_image:getHeight() / IMAGE_CONSTANT), 1)
+	self._x = 0
+	self._y = 0
+	return self
+end
+
 local Hammer = {
+	getDamage = function(self) return 10 end,
 	swing = function(self, miningTile) -- n^2, but only for a small number od items, will be fine
 		local firstSet = {}
 		local secondSet = {}
@@ -161,6 +229,7 @@ local Hammer = {
 	end
 }
 local Pickaxe = {
+	getDamage = function(self) return 5 end,
 	swing = function(self, miningTile)
 		miningTile:decrementTile()
 		miningTile:decrementTile()
@@ -173,6 +242,7 @@ local Pickaxe = {
 
 
 function MiningGameScreen._putBackPickaxe(self)
+	love.mouse.setCursor()
 	self._pick_up_pick_image:setImage(PICKAXE_IMAGE)
 end
 
@@ -183,6 +253,7 @@ function MiningGameScreen._pickUpPickaxe(self)
 end
 
 function MiningGameScreen._putBackHammer(self)
+	love.mouse.setCursor()
 	self._pick_up_hammer_image:setImage(HAMMER_IMAGE)
 end
 
@@ -191,27 +262,111 @@ function MiningGameScreen._pickUpHammer(self)
 	love.mouse.setCursor(CURSOR_HAMMER)
 	self._selected_tool = Hammer
 end
+
+function MiningGameScreen.updateMiningCrack(self)
+	self._mining_crack_quad = love.graphics.newQuad(0, 0, self._mining_crack:getWidth() * (1 - self._wall_health / self._starting_wall_health), self._mining_crack:getHeight(), self._mining_crack)
+end
+
+function MiningGameScreen.startCollapse(self)
+	self._is_collapsing = true
+	self._wait_to_end = love.timer.getTime() + 1
+	--GameManager.setTransition(DownShift.new(1, self):setEndhook(function() GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event("cave_collapse", GameManager.saveData))) GameManager.setTransition(nil)) end)
+	GameManager.setTransition(DownShift.new(1, self):setEndhook(function() GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event("cave_collapse", GameManager.saveData))) GameManager.setTransition(nil) end))
+end
+
+function MiningGameScreen.endGame(self)
+	self._is_finished = true
+	self._wait_to_end = love.timer.getTime() + 1
+end
+
+function MiningGameScreen.checkTerminal(self)
+	self:updateMiningCrack()
+	if self._wall_health == 0 then self:startCollapse() end
+	if not self._is_collapsing
+	then
+		--checks if any unmined have been mined, adds to mined list, and checks to see if game should end
+		::restart::
+		for i, reward in ipairs(self._unmined_rewards_list)
+		do
+			local allChecksOut = true
+			for x = reward:getX(), reward:getX() + reward:getWidth() - 1
+			do
+				for y = reward:getY(), reward:getY() + reward:getHeight() - 1
+				do
+					allChecksOut = self._grid[x][y]:getTileValue() == 0
+					if not allChecksOut then goto twoBreak end
+				end
+			end
+			::twoBreak::
+			if allChecksOut
+			then
+				table.insert(self._mined_rewards_list, reward)
+				table.remove(self._unmined_rewards_list, i)
+				--Broke cardinal rule of table being unmodified, must restart. Performance is not so good, but only a few items, so it should be fine
+				goto restart
+			end
+		end
+		
+		if #self._unmined_rewards_list == 0
+		then
+			self:endGame()
+		end
+	end
+	
+end
+
+function MiningGameScreen.update(self, dt)
+	Screen.update(self, dt)
+	if self._wait_to_end and self._wait_to_end < love.timer.getTime()
+	then
+		self:_putBackPickaxe()
+		self:_putBackHammer()
+		if self._is_collapsing
+		then
+			
+		end
+		if self._is_finished
+		then 
+			
+		end
+	end
+end
+
 function MiningGameScreen.mousepressed(self, x, y, number, istouch)
 	-- Shift sideways & up for easier math
 	x = x - self._miningfield_x
 	y = y - self._miningfield_y
 	local tileX = math.floor(x / IMAGE_CONSTANT)
 	local tileY = math.floor(y / IMAGE_CONSTANT)
-	if self._selected_tool and tileX >= 0 and tileX < NumSquareWidth and tileY >= 0 and tileY < NumSquareWidth
+	if self._selected_tool and tileX >= 0 and tileX < NumSquareWidth and tileY >= 0 and tileY < NumSquareWidth and not self._is_collapsing and not self._is_finished
 	then
 		self._selected_tool:swing(self._grid[tileX][tileY])
+		self._wall_health = math.max(self._wall_health - self._selected_tool:getDamage(), 0)
+		self:checkTerminal()
 	end
 end
 
 
-function MiningGameScreen.new()
+
+
+function MiningGameScreen.new(item_list)
 	local self = Screen.new()
 	setmetatable(self, {__index = MiningGameScreen})
+	local reward_list = item_list or getLayer().mining_reward_list
+	self._starting_wall_health = 100
+	self._wall_health = self._starting_wall_health
+	self._is_collapsing = false
+	self._is_finished = false
 	self._grid = {}
 	self._spritebatch = love.graphics.newSpriteBatch(TILE_IMAGE, NumSquareWidth * NumSquareWidth, "stream")
 	self._background_spritebatch = love.graphics.newSpriteBatch(MINING_BACKGROUND, NumSquareWidth * NumSquareWidth, "static")
 	self._miningfield_x = Screen.width / 2 - MINING_SCREEN_WIDTH / 2
 	self._miningfield_y = Screen.height / 2 - MINING_SCREEN_HEIGHT / 2
+	self._mining_meter_background = DrawableImage.new("Images/Mining/mining_meter_background.png")
+	self._mining_meter_background:setX(self._miningfield_x)
+	self._mining_meter_background:setY(self._miningfield_y - self._mining_meter_background:getHeight())
+	self._mining_crack = love.graphics.newImage("Images/Mining/mining_meter_crack.png")
+	self:updateMiningCrack()
 	--Setup the grid and initialize the background spritebatch
 	for x = 0, NumSquareWidth - 1
 	do
@@ -278,6 +433,28 @@ function MiningGameScreen.new()
 	toolCollection:setY(Screen.height / 2 - toolCollection:getHeight() / 2)
 	
 	self:add(toolCollection)
+	
+	--Add rewards to the field
+	local num_rewards = math.random(1,3)
+	self._unmined_rewards_list = {}
+	self._mined_rewards_list = {}
+	for i = 1, num_rewards
+	do
+		::createNewReward::
+		local reward = Reward.new(reward_list[math.random(#reward_list)])
+		reward:setX(math.random(0, NumSquareWidth - 1 - reward:getWidth()))
+		reward:setY(math.random(0, NumSquareWidth - 1 - reward:getHeight()))
+		local intersects = false
+		for _, other_reward in ipairs(self._unmined_rewards_list)
+		do
+			intersects = other_reward:intersects(reward)
+			if intersects
+			then
+				goto createNewReward
+			end
+		end
+		table.insert(self._unmined_rewards_list, reward)
+	end
 	
 	
 	return self

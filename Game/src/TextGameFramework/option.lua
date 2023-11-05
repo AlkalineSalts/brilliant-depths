@@ -30,7 +30,7 @@ function Option.selected_action(self, game_data)
 end
 
 --Replace with a function that returns the name of the next event or event group
-function Option.get_next_event_name()
+function Option.get_next_event_name(self)
 	error("Must switch this with the next event or event group")
 end
 function Option.select(self, game_data) 

@@ -1,5 +1,6 @@
 require("src.party_member")
 local DepthInfo = require("src.depth_info")
+require("src.modding_functions")
 
 function getPotentialEventFromName(groupName)
 	local status, event = pcall(GameManager.eventManager.get_event, GameManager.eventManager, groupName, GameManager.saveData)
@@ -18,7 +19,13 @@ function getPotentialEventFromName(groupName)
 end
 
 function getThisTurnEvent()
-	return getPotentialEventFromName("terminal_events") or getPotentialEventFromName("priority_events")
+	local layer = getLayer()
+	local layer_event = nil
+	if math.random() <= layer.eventProbability
+	then
+		layer_event = getPotentialEventFromName(layer.layerName)
+	end
+	return getPotentialEventFromName("terminal_events") or getPotentialEventFromName("priority_events") or layer_event
 end
 
 local function eatFood(saveData)
