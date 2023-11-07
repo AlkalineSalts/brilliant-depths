@@ -58,7 +58,7 @@ love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
 	self.continue:setY(self.newGame:getY() + self.newGame:getHeight())
 	self:add(self.newGame)
 	self:add(self.continue)
-	self.newGame.click = function(self) GameManager.saveData = SaveUtil.getDefaultSaveData() SimpleTransition.fadeTransition(DifficultyScreen.new()) end
+	self.newGame.click = function(self) love.filesystem.remove(SAVE_PATH) GameManager.saveData = SaveUtil.getDefaultSaveData() SimpleTransition.fadeTransition(DifficultyScreen.new()) end
 	self.titleLoop = love.audio.newSource("Music/03 File Select.mp3", "stream") --Source object
 	
 	--self.enterable_textbox = EnterableTextbox.new(nonTitleFont, nil, 30)

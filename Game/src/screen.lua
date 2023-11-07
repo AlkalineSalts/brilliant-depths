@@ -114,6 +114,14 @@ function Screen.draw(self)
 	end
 end
 
+function Screen.getWidth(self)
+	return Screen.width
+end
+
+function Screen.getHeight(self)
+	return Screen.height
+end
+
 function Screen.new()
 local newScreen = {}
 setmetatable(newScreen, {__index = Screen})

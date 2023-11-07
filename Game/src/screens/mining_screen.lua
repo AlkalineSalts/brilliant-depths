@@ -158,18 +158,45 @@ function Reward.getHeight(self)
 	return self._height
 end
 
-local function helperIntersects(reward1, reward2)
-	return reward2:getX() >= reward1:getX() and reward2:getX() + reward2:getWidth() < reward1:getX() and reward2:getY() >= reward1:getY() and reward2:getY() + reward2:getHeight() < reward1:getY()
-end 
 
 function Reward.intersects(self, other_reward)
-	return helperIntersects(self, other_reward) or helperIntersects(other_reward, self)
+	--find one with less x, one with less y, and the greater x and y
+	local lesserX, lesserY, greaterX, greaterY
+	if self:getX() <= other_reward:getX()
+	then
+		lesserX = self
+		greaterX = other_reward
+	else
+		lesserX = other_reward
+		greaterX = self
+	end
+	
+	if self:getY() <= other_reward:getY()
+	then
+		lesserY = self
+		greaterY = other_reward
+	else
+		lesserY = other_reward
+		greaterY = self
+	end
+	
+	--Checks if intersects x axis
+	local lesserEnd = lesserX:getX() + lesserX:getWidth()
+	local intersectsX = greaterX:getX() >= lesserX:getX() and greaterX:getX() < lesserEnd
+	--Checks if intersects y axis
+	local lesserEndY = lesserY:getY() + lesserY:getHeight()
+	local intersectsY = greaterY:getY() >= lesserX:getY() and greaterY:getY() < lesserEndY
+	--if it intersects both, they intersect
+	return intersectsX and intersectsY
 end
 
 function Reward.getImage(self)
 	return self._item_image
 end
 
+function Reward.getName(self)
+	return self._item_name
+end
 function Reward.new(item_name) --Is a rectangle
 	local self = {}
 	setmetatable(self, {__index = Reward})
@@ -266,17 +293,47 @@ end
 function MiningGameScreen.updateMiningCrack(self)
 	self._mining_crack_quad = love.graphics.newQuad(0, 0, self._mining_crack:getWidth() * (1 - self._wall_health / self._starting_wall_health), self._mining_crack:getHeight(), self._mining_crack)
 end
-
+function MiningGameScreen._stopToolUsage(self)
+	self:_putBackHammer()
+	self:_putBackPickaxe()
+end
 function MiningGameScreen.startCollapse(self)
 	self._is_collapsing = true
-	self._wait_to_end = love.timer.getTime() + 1
+	self:_stopToolUsage()
 	--GameManager.setTransition(DownShift.new(1, self):setEndhook(function() GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event("cave_collapse", GameManager.saveData))) GameManager.setTransition(nil)) end)
 	GameManager.setTransition(DownShift.new(1, self):setEndhook(function() GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event("cave_collapse", GameManager.saveData))) GameManager.setTransition(nil) end))
 end
 
-function MiningGameScreen.endGame(self)
+function MiningGameScreen.endGameGood(self)
+	--Give player the rewards and assemple notify screen text.
+	local successText = "You fininsh up your mining. You found:"
+	local reward_name_to_amount = {}
+	for _, reward in ipairs(self._mined_rewards_list)
+	do
+		if not reward_name_to_amount[reward:getName()]
+		then
+			reward_name_to_amount[reward:getName()] = 1
+		else
+			reward_name_to_amount[reward:getName()] = reward_name_to_amount[reward:getName()] + 1
+		end
+	end
+	--Assemble the text
+	for rname, amount in pairs(reward_name_to_amount)
+	do
+		successText = successText..string.format("%s x %d", rname, amount)
+	end
+	
+	--Perform clean up
+	self:_stopToolUsage()
 	self._is_finished = true
-	self._wait_to_end = love.timer.getTime() + 1
+	--Send to notify screen
+	local transition = DownShift.new(1, self):setEndhook(
+	function()
+		GameManager.changeScreen(NotifyScreen.new(successText, MainScreen.new()))
+		GameManager.setTransition(nil) 
+	end
+	)
+	GameManager.setTransition(transition)
 end
 
 function MiningGameScreen.checkTerminal(self)
@@ -309,27 +366,10 @@ function MiningGameScreen.checkTerminal(self)
 		
 		if #self._unmined_rewards_list == 0
 		then
-			self:endGame()
+			self:endGameGood()
 		end
 	end
 	
-end
-
-function MiningGameScreen.update(self, dt)
-	Screen.update(self, dt)
-	if self._wait_to_end and self._wait_to_end < love.timer.getTime()
-	then
-		self:_putBackPickaxe()
-		self:_putBackHammer()
-		if self._is_collapsing
-		then
-			
-		end
-		if self._is_finished
-		then 
-			
-		end
-	end
 end
 
 function MiningGameScreen.mousepressed(self, x, y, number, istouch)
@@ -433,6 +473,11 @@ function MiningGameScreen.new(item_list)
 	toolCollection:setY(Screen.height / 2 - toolCollection:getHeight() / 2)
 	
 	self:add(toolCollection)
+	--Adds the end early button
+	local endEarly = DrawableImage.new(love.graphics.newImage("Images/arrow_square_left.png"), 40, 40)
+	endEarly.click = function() self:endGameGood() end
+	endEarly:setY(self:getHeight() - endEarly:getHeight())
+	self:add(endEarly)	
 	
 	--Add rewards to the field
 	local num_rewards = math.random(1,3)

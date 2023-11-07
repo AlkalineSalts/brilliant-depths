@@ -15,8 +15,12 @@ local function createSelectOption(option)
 		GameManager.saveData.current_event = nil --Rmoves current event from save data
 		
 		option:select(GameManager.saveData)
-		local nextEvent = option:get_next_event_name(GameManager.saveData) --nextEvent is a string or nil at this point
-				
+		local nextEvent =  option:get_next_event_name(GameManager.saveData) --nextEvent is a string or nil at this point
+		
+		--Checks if game should end with terminal event
+		local terminal_event = getPotentialEventFromName("terminal_events")
+		if terminal_event then GameManager.changeScreen(EventScreen.new(terminal_event)) return end
+		
 		--If not nil, then get the next event from the name, has the potential to become nil
 		::top::
 		if nextEvent == nil
@@ -27,7 +31,7 @@ local function createSelectOption(option)
 			GameManager.changeScreen(nextEvent)
 		elseif type(nextEvent) == "string"
 		then 
-			nextEvent = getPotentialEventFromName(nextEvent)
+			nextEvent = getPotentialEventFromName(nextEvent) --checks if an end game event is here, or otherwise try to find the next event
 			if nextEvent == nil then goto top end
 			GameManager.changeScreen(EventScreen.new(nextEvent))
 		else

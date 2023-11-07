@@ -1,6 +1,6 @@
 gellatinous_gazer_gaze = {}
 setmetatable(gellatinous_gazer_gaze, {__index = Event})
-local glowing_colors = {"Black", "Blue", "Green", "Indigo", "Purple", "Orange"}
+local glowing_colors = {"black", "blue", "green", "indigo", "purple", "orange"}
 function gellatinous_gazer_gaze.get_text(self, game_data)
 	::retry::
 	local selected_color = glowing_colors[math.random(#glowing_colors)]
@@ -35,9 +35,9 @@ function gellatinous_gazer_gaze.new()
 		getEventSaveLocation(event, game_data).timesDone = nil
 		if timesLooked and timesLooked > 2
 		then
-			return nil
-		else
 			return "gellatinous_gazer_gaze_long"
+		else
+			return nil
 		end
 	end 
 	
