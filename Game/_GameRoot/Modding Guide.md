@@ -26,9 +26,11 @@ Event files are located within the Events directory. Each file contains data rel
 The Event class uses these functions:
 
 *	Event.new(name) - Used to create a new Event object. It accepts a string, which is the event's name.
+*	Event.init(self, game_data) - Called before event is displayed. Use this to set up runtime data for the event, such as what options it has. 
+*	Event.add_option(self, option) - Used to add an option to the event. This should be used inside init to set up what options the event has.
 *	Event.can\_be\_chosen(self, game_data) - Used to determine if this event can be selected randomly from the event group. This is not called if this event is directly selected.
 *	Event.get\_text(self, game_data) - Used to get the displayed text for the event. *You probably don't want to change the game data, only read it.*
-*	Event.add_option(self, option) - Used to add an option to the event. 
+
 
 It also has these, although you probably will not need them.
 

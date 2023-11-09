@@ -10,7 +10,9 @@ function gellatinous_gazer_gaze_long.new()
 
 	local option_0 = Option.new("Continue", false)
 	option_0.get_next_event_name = function(self, game_data) return nil end 
-	
+	option_0.selected_action = function(self, game_data) 
+		increaseDay(game_data)
+	end 
 	self:add_option(option_0)
 	return self
 end

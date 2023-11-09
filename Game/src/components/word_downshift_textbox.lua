@@ -24,7 +24,7 @@ function WordDownshiftTextbox.setText(self, text)
 			end
 			return word_array	
 		end
-	word_array = lineToArray(string.format("%s\n",text),  "[%a%d%p]+\n")
+	word_array = lineToArray(string.format("%s\n",text),  "[%a%d%p ]+\n")
 	for i, v in ipairs(word_array)
 	do
 		word_array[i] = lineToArray(string.format("%s ", v), "[%a%d%p]+[%s]")

@@ -16,7 +16,6 @@ local function createSelectOption(option)
 		
 		option:select(GameManager.saveData)
 		local nextEvent =  option:get_next_event_name(GameManager.saveData) --nextEvent is a string or nil at this point
-		
 		--Checks if game should end with terminal event
 		local terminal_event = getPotentialEventFromName("terminal_events")
 		if terminal_event then GameManager.changeScreen(EventScreen.new(terminal_event)) return end
@@ -44,7 +43,8 @@ end
 function EventScreen.new(event)
 	self = Screen.new()
 	setmetatable(self, {__index = EventScreen})
-	local event_text_font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 25)
+	event:initialize(GameManager.saveData)
+	local event_text_font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)
 	local options_text_font = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)
 	self.topText = WordDownshiftTextbox.new(event:get_text(GameManager.saveData), event_text_font, nil, Screen.width * 3/4)
 	self.topText:setX(Screen.width/8)
@@ -70,11 +70,15 @@ function EventScreen.new(event)
 		optionsBoxes[#optionsBoxes + 1] = newTextbox
 	end
 	
+	--Rectangular dividing live
+	local dividingLine = RectangularComponent.new(0, self.topText:getY() + self.topText:getHeight(), self:getWidth(), 4, Color.WHITE)
+	self:add(dividingLine)
+	
 	if #optionsBoxes > 0
 	then
 		self._options_collection = VerticleCollection.new(table.unpack(optionsBoxes))
 		self._options_collection:setX(self.topText:getX())
-		self._options_collection:setY(self.topText:getY() / 2 + Screen.height / 2 - self.topText:getHeight() / 2)
+		self._options_collection:setY(dividingLine:getY() + dividingLine:getHeight())
 		self:add(self._options_collection)
 	end
 	return self

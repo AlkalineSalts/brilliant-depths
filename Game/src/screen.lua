@@ -49,28 +49,32 @@ end
 function Screen.keypressed(self, key, scancode, isrepeat)
 	
 end
+
+function Screen.getComponentAt(self, x, y) --returns the topmost component at x, y
+	for i = #self._component_list, 1, -1
+	do
+		local component = self._component_list[i]
+		if component:checkMouseOver(x, y) and self._is_m_focused --checks that mouse is over component, requiring the mouse to be both in the screen (mouse focused) and above the component
+		then
+			return component
+		end	
+	end
+end
+
 function Screen.mousepressed(self, x, y, number, istouch)
-	
+	if not self._is_focused --only updates if in focus
+	then
+		return
+	end
 end
 function Screen.mousereleased(self, x, y, number, istouch)
 	if not self._is_focused --only updates if in focus
 	then
 		return
 	end
+	local releasedComponent = self:getComponentAt(x, y)
+	releasedComponent:click()
 	
-	local mouseX, mouseY = love.mouse.getPosition()
-	for i = #self._component_list, 1, -1
-	do
-		local component = self._component_list[i]
-		if not foundOverComponent
-		then
-			if component:checkMouseOver(mouseX, mouseY) and self._is_m_focused --checks that mouse is over component, requiring the mouse to be both in the screen (mouse focused) and above the component
-			then
-				component:click()
-			end
-		end
-			
-	end
 end
 
 function Screen.mousefocus(self, is_m_focused)

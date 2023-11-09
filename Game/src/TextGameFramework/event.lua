@@ -45,6 +45,15 @@ end
 function Event.add_option(self, option)
 	self._options[#self._options + 1] = option
 end
+
+function Event.initialize(self, game_data)
+	if self.init -- This check is for compatibility's sake, remove once compatibility needs are gone
+	then
+		self._options = {}
+		self:init(game_data)
+	end
+end
+
 function Event.new(name) --do not modify/override
 	local o = {}
 	setmetatable(o, {__index = Event})

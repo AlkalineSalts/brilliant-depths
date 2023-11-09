@@ -13,10 +13,10 @@ function PartyMember.getClass(self)
 end
 
 function PartyMember.getHealthStateForNumber(healthVal)
-	if healthVal >= 75
+	if healthVal >= 80
 	then
 		return "Great"
-	elseif healthVal < 75 and healthVal >= 50
+	elseif healthVal < 80 and healthVal >= 50
 	then
 		return "Good"
 	elseif healthVal < 50 and healthVal >= 25

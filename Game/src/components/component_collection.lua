@@ -92,20 +92,10 @@ function ComponentCollection.remove(self, component)
 	
 end
 
-function ComponentCollection.new(...) --takes any # of components, will set the first component x y to this componenets x y. the x and y of all other components are moved relative to that shift
+function ComponentCollection.new(...) --takes any # of components
 	local self = Component.new()
 	setmetatable(self, {__index = ComponentCollection})
-	if not {...} then error("Must give at least one component") end
-	if #{...} < 1 then error("Must give at least one component") end
 	self._component_list = {...}
-	--Makes it so that this x y is equal to first component x y 
-	local currentX = Component.getX(self) --Will be zero for getX, getY, but incase changes
-	local currentY = Component.getY(self)
-	local first = table.unpack({...})
-	Component.setX(self, first:getX())
-	Component.setY(self, first:getY())
-	self:setX(currentX)
-	self:setY(currentY)
 	self._mouse_over_component = nil --stores which component the mouse is over
 	return self
 end
