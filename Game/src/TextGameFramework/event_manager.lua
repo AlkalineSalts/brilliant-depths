@@ -2,7 +2,7 @@ require("src.TextGameFramework.event")
 require("src.TextGameFramework.option")
 require("src.util")
 EventManager = {}
-local PATH_SEPERATOR = package.config:sub(1,1)
+local PATH_SEPERATOR = "/"
 local EVENT_GROUP_CSV = "event_groups.csv"
 local function isLuaFile(fp) return string.sub(fp, #fp - 3, #fp) == ".lua" end
 local function get_files_in(path)
