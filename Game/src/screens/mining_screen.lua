@@ -210,7 +210,7 @@ function Reward.new(item_name) --Is a rectangle
 end
 
 local Hammer = {
-	getDamage = function(self) return 10 end,
+	getDamage = function(self) return 8 end,
 	swing = function(self, miningTile) -- n^2, but only for a small number od items, will be fine
 		local firstSet = {}
 		local secondSet = {}
@@ -256,7 +256,7 @@ local Hammer = {
 	end
 }
 local Pickaxe = {
-	getDamage = function(self) return 5 end,
+	getDamage = function(self) return 4 end,
 	swing = function(self, miningTile)
 		miningTile:decrementTile()
 		miningTile:decrementTile()
@@ -317,10 +317,11 @@ function MiningGameScreen.endGameGood(self)
 			reward_name_to_amount[reward:getName()] = reward_name_to_amount[reward:getName()] + 1
 		end
 	end
-	--Assemble the text
+	--Assemble the text & add to inventory
 	for rname, amount in pairs(reward_name_to_amount)
 	do
-		successText = successText..string.format("%s x %d", rname, amount)
+		GameManager.saveData.inventory[rname] = GameManager.saveData.inventory[rname] + amount
+		successText = successText..string.format("%s x %d\n", rname, amount)
 	end
 	
 	--Perform clean up

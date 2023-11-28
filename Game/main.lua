@@ -51,9 +51,22 @@ function GameManager.changeScreen(newScreen) --static method
 	end
 end
 
+
 function GameManager.setTransition(transition)
 	GameManager.transition = transition
 end
+
+function GameManager.goBackScreen(defaultScreen)
+	local event_name = GameManager.saveData.current_event
+	if event_name
+	then
+		local event = GameManager.eventManager:get_event(event_name, GameManager.saveData)
+		GameManager.changeScreen(EventScreen.new(event))
+	else
+		GameManager.changeScreen(defaultScreen)
+	end
+end
+
 require("src.screens.mining_screen")
 function love.load()
 	local defaultFont = love.graphics.newFont("Fonts/ibm-plex-mono/IBMPlexMono-Bold.ttf", 20)

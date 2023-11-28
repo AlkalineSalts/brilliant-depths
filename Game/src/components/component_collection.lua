@@ -44,6 +44,7 @@ function ComponentCollection.click(self)
 	end
 end
 function ComponentCollection.getWidth(self)
+	if #self._component_list == 0 then return 0 end
 	local minX = self._component_list[1]:getX()
 	local maxX = self._component_list[1]:getX() + self._component_list[1]:getWidth()
 	for _, component in ipairs(self._component_list)
@@ -54,6 +55,7 @@ function ComponentCollection.getWidth(self)
 	return maxX - minX
 end
 function ComponentCollection.getHeight(self)
+	if #self._component_list == 0 then return 0 end
 	local minY = self._component_list[1]:getY()
 	local maxY = self._component_list[1]:getY() + self._component_list[1]:getHeight()
 	for _, component in ipairs(self._component_list)
@@ -75,6 +77,10 @@ function ComponentCollection.setY(self, y)
 end
 function ComponentCollection.add(self, c)
 	self._component_list[#self._component_list + 1] = c
+end
+
+function ComponentCollection.clear(self)
+	self._component_list = {}
 end
 
 function ComponentCollection.remove(self, component)

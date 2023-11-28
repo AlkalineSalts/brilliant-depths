@@ -1,6 +1,7 @@
 require("src.screen")
 require("src.components")
 require("src.party_member")
+require("src.audio_manager")
 require("src.enum")
 require("src.progress")
 require("src.screens.event_screen")
@@ -44,20 +45,19 @@ function MainScreen.update(self, dt)
 	Screen.update(self, dt)
 	if self._is_in_transition
 	then
-		local direction = GameManager.saveData.depth - self._depth 
-		if direction ~= 0
+		local direction
+		direction = GameManager.saveData.depth - self._depth 
+		if direction == 0
 		then
-			direction = direction / math.abs(direction)
-			self._depth = self._depth + direction
-		else
 			self:_stopTransition()
+		elseif direction > 0
+		then
+			self._depth = self._depth + 1
+		else
+			self._depth = self._depth - 1
 		end
 		self:updateText()
 	end
-	
-	
-	
-	
 end
 
 function MainScreen.updateText(self)
@@ -78,14 +78,23 @@ function MainScreen.load(self)
 	--self._layer_info = DepthInfo.getLayerFromNumber(GameManager.saveData.layer)
 	--self._background = self._layer_info.layer_image
 	--self:_checkEvents()
+	if self._layer_info.music_name ~= AudioManager:getMusicName()
+	then 
+		AudioManager:stopMusic()
+		AudioManager:setMusic(self._layer_info.music_name, true)
+		AudioManager:playMusic()
+	end
+	
+	GameManager.saveData.current_event = nil --Removes current event from save data
 	self:updateText()
 end
 
 function MainScreen.keypressed(self, key, scancode, isrepeat)
 	if not self._is_in_transition
 	then
-		if key == "down" 
+		if key == "down" or key == "up"
 		then
+			GameManager.saveData.going_down = key == "down"
 			progress(GameManager.saveData)
 			self:_startTransition()
 		end

@@ -1,3 +1,4 @@
+require("src.audio_manager")
 require("src.transition.transition")
 FadeIn = {}
 setmetatable(FadeIn, {__index = Transition})
@@ -16,7 +17,7 @@ then
 	local percent = (self.currentFadeTime / self.fadeInTime)
 	love.graphics.setColor(0, 0, 0, math.max(1-percent, 0))
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
-	love.audio.setVolume(math.min(percent, 1))
+	AudioManager:setVolume(math.min(percent, 1))
 	love.graphics.setColor(r,g,b,a)
 end	
 end

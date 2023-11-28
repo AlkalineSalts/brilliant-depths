@@ -13,6 +13,12 @@ function DifficultyScreen.draw(self)
 	Screen.draw(self)
 end
 
+local function setUpTasks() --THis is where tasks are set up
+	local tasks = require("src.tasks") 
+	GameManager.saveData.main_task = math.random(#tasks["MainTasks"]) -- puts the index of the maintask
+end
+	
+
 function DifficultyScreen.new()
 	local self = Screen.new()
 	self.initial_money_amount = {500, 750, 1000, 1250, 1500}
@@ -60,6 +66,7 @@ function DifficultyScreen.new()
 		local playerAmt = getPlayerAmt()
 		if playerAmt > 0
 		then
+			setUpTasks()
 			GameManager.saveData.currency = self.initial_money_amount[playerAmt]
 			for _, struct in ipairs(self.struct_list)
 			do

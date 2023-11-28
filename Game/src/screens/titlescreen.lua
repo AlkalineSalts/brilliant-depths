@@ -5,19 +5,21 @@ require("src.transition.simple_transition")
 require("src.screens.difficulty_screen")
 require("src.screens.main_screen")
 require("src.save_util")
+require("src.audio_manager")
+local DepthInfo = require("src.depth_info")
 TitleScreen = {}
 setmetatable(TitleScreen, {__index = Screen})
 
 function TitleScreen.release(self)
-	self.titleLoop:stop()
+	AudioManager:stopMusic()
 end
 
 function TitleScreen.focusHook(self, is_focused) --private, externals should call 
 	if is_focused
 	then
-		self.titleLoop:play()
+		AudioManager:playMusic()
 	else
-		self.titleLoop:pause()
+		AudioManager:pauseMusic()
 	end
 end
 
@@ -59,7 +61,7 @@ love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 60), nil)
 	self:add(self.newGame)
 	self:add(self.continue)
 	self.newGame.click = function(self) love.filesystem.remove(SAVE_PATH) GameManager.saveData = SaveUtil.getDefaultSaveData() SimpleTransition.fadeTransition(DifficultyScreen.new()) end
-	self.titleLoop = love.audio.newSource("Music/03 File Select.mp3", "stream") --Source object
+	AudioManager:setMusic("03 File Select.mp3", true) --Source object
 	
 	--self.enterable_textbox = EnterableTextbox.new(nonTitleFont, nil, 30)
 	--self.enterable_textbox:setY(self.continue:getY() + self.continue:getHeight())

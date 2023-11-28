@@ -70,7 +70,9 @@ The table has these values:
 *	inventory - this table stores the items in the table in the form of the item as a key and the amount of the item as the value
 *	party - A table in list form which contains the players
 *	event_data - A table which holds tables for specific events
+*	current_event: stores which event is currently happening, you should not mess with this
 *	currency - A number which is the amount of money the party has
+*	going_down - A boolean stating whether the player is headed down or up. recommend against modification, please read only
 *	misc - A table not designated to hold any particular data
 *	day - A number which designates the day
 *	depth - A number which states how many meters the party is at
@@ -78,7 +80,7 @@ The table has these values:
 *	traveling_speed - A value which holds how fast the party is traveling
 *	food\_consumption\_amount - A value which holds the amount of food being consumed
 
-Of these, it is recommended that the modder only directly changes misc, currency, party, and inventory. Other functions exist that can safely affect the other fields.
+Of these, it is recommended that the modder only directly changes misc, party, and inventory. Other functions exist that can safely affect the other fields.
 
 #### Inventory ####
 This stores items as a map of item name to amount of items. This table always returns 0 if the item is not present. It also has a method which should be used whenever you are setting the amount if an item.
@@ -117,3 +119,4 @@ Save data cannot properly store tables that have functions. You may have observe
 	*	depthMinimum - The minimum depth at which layer is.
 	*	depthMaximum - The maximum depth at which the layer is.
 	*	layerName - The namer of the layer. Current names are: {layer1, layer2, layer3, layer4, layer5}
+*	getMainTask(number) - Used to get a task from a number, which can be used to convert the save data number to a task

@@ -1,4 +1,5 @@
 local DepthInfo = require("src.depth_info")
+require("src.tasks")
 function getEventSaveLocation(event, saveData)
 	local event_data = saveData.event_data
 	local event_name = event:get_name()

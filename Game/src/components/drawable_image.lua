@@ -24,7 +24,7 @@ function DrawableImage.new(image, width, height)
 		imageWidth = image:getWidth()
 		imageHeight = image:getHeight()
 	end 
-	self:__setWidth(width or imageWidth)
-	self:__setHeight(height or imageHeight)
+	self:__setWidth(math.ceil(width or imageWidth))
+	self:__setHeight(math.ceil(height or imageHeight))
 	return self
 end

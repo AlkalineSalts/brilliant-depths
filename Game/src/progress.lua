@@ -28,10 +28,28 @@ function getThisTurnEvent()
 	return getPotentialEventFromName("terminal_events") or getPotentialEventFromName("priority_events") or layer_event
 end
 
+local FOOD_CONSUMPTION_RATE = 5
+
 local function eatFood(saveData)
+	local food_consumption_rate
+	if saveData.food_consumption_amount == PartyMember.FoodAmount.Hearty
+	then
+		food_consumption_rate = FOOD_CONSUMPTION_RATE
+	elseif saveData.food_consumption_amount == PartyMember.FoodAmount.Meager
+	then
+		food_consumption_rate = math.floor(FOOD_CONSUMPTION_RATE * 0.8)
+	elseif saveData.food_consumption_amount == PartyMember.FoodAmount.Sparse
+	then
+		food_consumption_rate = math.floor(FOOD_CONSUMPTION_RATE * 0.6)
+	end
+	local changeFoodBy = -food_consumption_rate * #saveData.party
+	saveData.inventory:changeItemAmount("Food", changeFoodBy)
 end
 
+local DAY_HEALTH_INCREASE = 2
+
 local function changeHealth(saveData)
+	saveData.party:changeHealthNumericForAll(DAY_HEALTH_INCREASE)
 end
 
 function increaseDay(saveData)
@@ -42,20 +60,38 @@ end
 function progress(saveData)
 	local depth_info = DepthInfo.getLayerFromNumber(saveData.layer)
 	local originalDepth = saveData.depth
+	local healthReduction
+	local traveling_distance
 	if saveData.traveling_speed == PartyMember.TravelingSpeed.Balanced
 	then
-		saveData.depth = saveData.depth + 30
+		traveling_distance = 30
+		healthReduction = DAY_HEALTH_INCREASE
 	elseif saveData.traveling_speed == PartyMember.TravelingSpeed.Strenuous
 	then
-		saveData.depth = saveData.depth + 40
+		traveling_distance = 40
+		healthReduction = math.floor(DAY_HEALTH_INCREASE * 1.5)
 	elseif saveData.traveling_speed == PartyMember.TravelingSpeed.Grueling
 	then
-		saveData.depth = saveData.depth + 50
+		traveling_distance = 50
+		healthReduction = DAY_HEALTH_INCREASE * 2
 	end
 	
-	saveData.depth = math.min(saveData.depth, depth_info.depthMaximum)
+	if saveData.going_down
+	then
+		saveData.depth = saveData.depth + traveling_distance
+	else
+		saveData.depth = saveData.depth - traveling_distance
+	end
+	
+	if saveData.going_down
+	then
+		saveData.depth = math.min(saveData.depth, depth_info.depthMaximum)
+	else
+		saveData.depth = math.max(saveData.depth, depth_info.depthMinimum)
+	end
 	if saveData.depth ~= originalDepth
 	then
 		increaseDay(saveData)
+		saveData.party:changeHealthNumericForAll(-healthReduction)
 	end
 end

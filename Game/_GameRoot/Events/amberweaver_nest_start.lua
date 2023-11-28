@@ -14,7 +14,7 @@ function amberweaver_jackpot_start.new()
 	self:add_option(option_0)
 	local option_1 = Option.new("Don't break it open, but stay in the cave.", false)
 	option_1.get_next_event_name = function(self, game_data)  
-		if math.random() < 0.5 then return "amberweaver_attack" else return "nil" end
+		if math.random() < 0.5 then return "amberweaver_attack" else return nil end
 	end 
 	
 	self:add_option(option_1)

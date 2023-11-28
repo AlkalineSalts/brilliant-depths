@@ -6,6 +6,15 @@ require("src.next_previous")
 require("src.components.textbox")
 SelectableBar = {}
 setmetatable(SelectableBar, {__index = ComponentCollection})
+
+function SelectableBar._textChanged(self)
+	--Move arrow right arrow to proper position, further refactoring necessary to enable this
+	
+	
+	
+	--Process callback
+	self:textChanged()
+end
 function SelectableBar.textChanged(self)
 	
 end
@@ -27,14 +36,28 @@ function SelectableBar.new(next_previous, enterable_textbox_builder, arrow_image
 	setmetatable(self, {__index = SelectableBar})
 	
 	if enterable_textbox.textChanged ~= Textbox.textChanged then error("Illegal State, enterableTextbox cannot have a textChanged callback.") end
-	enterable_textbox.textChanged = function() self:textChanged() end --When its text changes, calls selectable bar textChanged
+	enterable_textbox.textChanged = function() self:_textChanged() end --When its text changes, calls selectable bar textChanged
 	
 	self._enterable_textbox = enterable_textbox
 	self._left_arrow = left_arrow
 	self._right_arrow = right_arrow
 	self._next_previous = next_previous
 	self._enterable_textbox:setText(next_previous:current())
-	self._left_arrow.click = function() self._next_previous:previous() self._enterable_textbox:setText(self._next_previous:current()) end
-	self._right_arrow.click = function() self._next_previous:next() self._enterable_textbox:setText(self._next_previous:current()) end
+	self._left_arrow.click = function() 
+		local current = self._next_previous:current()
+		self._next_previous:previous() 
+		if current ~= self._next_previous:current()
+		then
+			self._enterable_textbox:setText(self._next_previous:current()) 
+		end
+	end
+	self._right_arrow.click = function() 
+		local current = self._next_previous:current()
+		self._next_previous:next() 
+		if current ~= self._next_previous:current()
+		then
+			self._enterable_textbox:setText(self._next_previous:current()) 
+		end
+	end
 	return self
 end

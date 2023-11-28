@@ -1,4 +1,5 @@
 require("src.screen")
+require("src.screens.task_screen")
 require("src.components")
 require("src.party_member")
 require("src.progress")
@@ -87,8 +88,9 @@ function StatusScreen.new(inventory_screen_page)
 		--Removes the key items from the given table and displays
 		local layer = LinearTextbox.new(string.format("Layer %d", GameManager.saveData.layer), middleFont)
 		local days = LinearTextbox.new(string.format("Day: %d", GameManager.saveData.day), middleFont)
+		local currency = LinearTextbox.new(string.format("Currency: %d", GameManager.saveData.currency), middleFont)
 		
-		local vc = VerticleCollection.new(layer, days)
+		local vc = VerticleCollection.new(layer, days, currency)
 		for _, item_name in ipairs(StatusScreen.KeyItems)
 		do
 			vc:add(LinearTextbox.new(string.format("%s: %d", item_name, inventory[item_name]), middleFont))
@@ -106,16 +108,35 @@ function StatusScreen.new(inventory_screen_page)
 	end
 	
 	local function createColumn(sizeLimit) --Options and potentially key stats and items listed
+		--We want to pull options from config file
 		
-		local changeTravelingSpeed = HighlightTextbox.new(WordDownshiftTextbox.new("Change Traveling Speed.", middleFont, nil, sizeLimit))
-		changeTravelingSpeed.click = function () GameManager.changeScreen(EventScreen.new(getPotentialEventFromName("status_screen_change_speed"))) end
-		local changeGait = HighlightTextbox.new(WordDownshiftTextbox.new("Change Ration Amount.", middleFont, nil, sizeLimit))
-		changeGait.click = function() GameManager.changeScreen(EventScreen.new(getPotentialEventFromName("status_screen_change_rations"))) end
-		local goBackOption = HighlightTextbox.new(WordDownshiftTextbox.new("Go back to main screen.", middleFont, nil, sizeLimit))
-		goBackOption.click = function() GameManager.changeScreen(MainScreen.new()) end
+		local options, e = require("GameRoot.status_screen_options")
+		local vc = VerticleCollection.new()
+		for _, option in ipairs(options)
+		do
+			local HBox = HighlightTextbox.new(WordDownshiftTextbox.new(option:get_text(), middleFont, nil, sizeLimit))
+			if (option:is_selectable(GameManager.saveData))
+			then
+				HBox.click = function () 
+					option:selected_action(GameManager.saveData)
+					local gotoNext = option:get_next_event_name()
+					if gotoNext == nil then gotoNext = MainScreen.new() end
+					if isInstanceOf(gotoNext, Screen)
+					then
+						GameManager.changeScreen(gotoNext)
+					else
+						GameManager.changeScreen(EventScreen.new(GameManager.eventManager:get_event(gotoNext, GameManager.saveData)))
+					end
+					
+				end
+			end
+			if not option:should_be_seen()
+			then
+				HBox:setColor(Color.GREY)
+			end
+			vc:add(HBox)
+		end
 		
-		
-		local vc = VerticleCollection.new(changeTravelingSpeed, changeGait, goBackOption)
 		
 		return vc
 	end
@@ -123,7 +144,7 @@ function StatusScreen.new(inventory_screen_page)
 	
 	local member_collection = createPartySection()
 	local memberCollectionBorder = RectangularComponent.new(member_collection:getWidth(), 0, 3, Screen.height, {1, 1, 1, 1})
-	local inventory_copy = table.shallowCopy(GameManager.saveData.inventory)
+	local inventory_copy = GameManager.saveData.inventory 
 	local key_items = createKeyItemsSection(inventory_copy)
 	local inventory_collection = createInventorySection(inventory_copy)
 	local inventoryCollectionBorder = RectangularComponent.new(Screen.width - inventory_collection:getWidth() - 3, 0, 3, Screen.height, {1, 1, 1, 1})

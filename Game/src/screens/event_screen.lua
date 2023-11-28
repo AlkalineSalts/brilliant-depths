@@ -3,16 +3,19 @@ require("src.screen")
 require("src.component")
 require("src.components")
 require("src.save_util")
+require("src.screens.sell_screen")
 require("src.transition.simple_transition")
+local DepthInfo = require("src.depth_info")
 local Color = require("src.color")
 EventScreen = {}
 setmetatable(EventScreen, {__index = Screen})
 
 --Added to the textboxes, will process the option and get the next event. If next event is nil, return to the mainscreen.
+--local function
 
-local function createSelectOption(option)
+
+function createSelectOption(option)
 	local function selectOption()
-		GameManager.saveData.current_event = nil --Rmoves current event from save data
 		
 		option:select(GameManager.saveData)
 		local nextEvent =  option:get_next_event_name(GameManager.saveData) --nextEvent is a string or nil at this point
@@ -39,7 +42,15 @@ local function createSelectOption(option)
 	end
 	return selectOption
 end
-
+function EventScreen.load(self)
+	--This is likely a temporary solution
+	if DepthInfo.getLayerFromNumber(GameManager.saveData.layer).music_name ~= AudioManager:getMusicName()
+	then 
+		AudioManager:stopMusic()
+		AudioManager:setMusic(DepthInfo.getLayerFromNumber(GameManager.saveData.layer).music_name, true)
+		AudioManager:playMusic()
+	end
+end
 function EventScreen.new(event)
 	self = Screen.new()
 	setmetatable(self, {__index = EventScreen})

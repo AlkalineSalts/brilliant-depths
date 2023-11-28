@@ -73,7 +73,7 @@ function Screen.mousereleased(self, x, y, number, istouch)
 		return
 	end
 	local releasedComponent = self:getComponentAt(x, y)
-	releasedComponent:click()
+	if releasedComponent then releasedComponent:click() end
 	
 end
 

@@ -25,7 +25,8 @@ ItemProperties.addItemProperties("Clothing", 5)
 ItemProperties.addItemProperties("Shot", 0.2)
 ItemProperties.addItemProperties("Rope", 10)
 ItemProperties.addItemProperties("Medical Supplies", 20)
-ItemProperties.addItemProperties("Odd Keystone", 50)
+ItemProperties.addItemProperties("Odd Keystone", 100)
+ItemProperties.addItemProperties("Lantern Conduit", 400, "Images/Mining/lantern_conduit.png")
 
 
 return ItemProperties
