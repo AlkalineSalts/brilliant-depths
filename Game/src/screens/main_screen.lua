@@ -130,7 +130,7 @@ function MainScreen.new()
 	self._party_stats = VerticleCollection.new(self._food_meter, self._health_meter)
 	self._stats_collection = HorizontalCollection.new(self._game_stats, self._party_stats)
 	
-	self._controls_tb = LinearTextbox.new("Controls: ", self._font)
+	self._controls_tb = LinearTextbox.new("Controls: [Down] to descend, [Up] to ascend, [s] to view status", self._font)
 	self._controls_collection = HorizontalCollection.new(self._controls_tb)
 	
 	self._ui_collection = VerticleCollection.new(self._stats_collection, RectangularComponent.new(0, 0, Screen.width, 3), self._controls_collection)

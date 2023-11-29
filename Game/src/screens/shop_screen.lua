@@ -64,7 +64,7 @@ function ShopScreen.new()
 	setmetatable(self, {__index = ShopScreen})
 	self.total = 0
 	local textFont = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 20)
-	self.downShiftTextbox = WordDownshiftTextbox.new("You arrive at the shop. Here you can supply yourself for the voyage. In terms of food, I would recommend that you take approximately 10 pounds of food per day, 2 pieces of clothing for each person, and as many spare parts as you need.", textFont, nil, 700)
+	self.downShiftTextbox = WordDownshiftTextbox.new("You arrive at the shop. Here you can supply yourself for the voyage. In terms of food, I would recommend that you take approximately 5 pounds of food per person per day, 2 pieces of clothing for each person, and as many spare parts as you need.", textFont, nil, 700)
 	self.startingCurrencyTextbox = LinearTextbox.new(string.format("Starting Currency: %d", GameManager.saveData.currency), textFont)
 	
 	local vc = VerticleCollection.new(self.downShiftTextbox)
