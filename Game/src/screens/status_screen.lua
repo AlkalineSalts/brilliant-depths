@@ -144,7 +144,7 @@ function StatusScreen.new(inventory_screen_page)
 	
 	local member_collection = createPartySection()
 	local memberCollectionBorder = RectangularComponent.new(member_collection:getWidth(), 0, 3, Screen.height, {1, 1, 1, 1})
-	local inventory_copy = GameManager.saveData.inventory 
+	local inventory_copy = table.shallowCopy(GameManager.saveData.inventory )
 	local key_items = createKeyItemsSection(inventory_copy)
 	local inventory_collection = createInventorySection(inventory_copy)
 	local inventoryCollectionBorder = RectangularComponent.new(Screen.width - inventory_collection:getWidth() - 3, 0, 3, Screen.height, {1, 1, 1, 1})
